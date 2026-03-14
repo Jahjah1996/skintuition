@@ -1,11 +1,12 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../../config/supabase";
 
 const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
 
 export function SessionWatcher() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout>;
@@ -18,7 +19,14 @@ export function SessionWatcher() {
         if (session) {
           timeout = setTimeout(async () => {
             await supabase.auth.signOut();
-            navigate("/login");
+            if (
+              location.pathname.startsWith("/patient") ||
+              location.pathname.startsWith("/doctor")
+            ) {
+              navigate("/login");
+            } else {
+              window.location.reload();
+            }
           }, INACTIVITY_TIMEOUT_MS);
         }
       });
@@ -40,7 +48,7 @@ export function SessionWatcher() {
       );
       clearTimeout(timeout);
     };
-  }, [navigate]);
+  }, [location.pathname, navigate]);
 
   return null; // Silent wrapper
 }

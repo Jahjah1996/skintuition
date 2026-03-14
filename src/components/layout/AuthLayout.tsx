@@ -41,8 +41,12 @@ export function AuthLayout() {
   return (
     <div className="min-h-[100dvh] flex flex-col bg-white">
       <PublicNavbar />
-      <div className="flex-1 mt-20 flex">
-        <Outlet />
+      <div className="flex-1 mt-20 relative">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-emerald-50" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,116,144,0.12),_transparent_55%)]" />
+        <div className="relative z-10 min-h-[calc(100dvh-5rem)] flex items-center justify-center p-4 sm:p-6 lg:p-10">
+          <Outlet />
+        </div>
       </div>
     </div>
   );
