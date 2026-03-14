@@ -16,6 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../../components/core/Card";
+import { SecureTextChat } from "../../components/shared/SecureTextChat";
 import { supabase } from "../../config/supabase";
 import { cn } from "../../utils/cn";
 
@@ -25,6 +26,8 @@ export function ConsultationBooking() {
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isBooked, setIsBooked] = useState(false);
+  const [bookedConsultId, setBookedConsultId] = useState<string | null>(null);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // latest active upload
@@ -89,14 +92,7 @@ export function ConsultationBooking() {
   };
 
   const handleSubmit = async () => {
-    // block missing analysis
     if (!selectedDate || !selectedTime) return;
-    if (!latestUpload?.analysis?.id) {
-      setError(
-        "No completed analysis found. Please upload and wait for analysis before booking.",
-      );
-      return;
-    }
     setIsSubmitting(true);
     setError(null);
 
@@ -106,23 +102,28 @@ export function ConsultationBooking() {
       } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      const { error: insertErr } = await supabase.from("consultations").insert({
-        patient_id: user.id,
-        analysis_id: latestUpload.analysis.id, // guaranteed non-null here
-        status: "pending",
-        urgency:
-          latestUpload.analysis?.risk_level === "HIGH"
-            ? "HIGH"
-            : latestUpload.analysis?.risk_level === "CRITICAL"
-              ? "CRITICAL"
-              : "ROUTINE",
-        patient_notes: notes || null,
-        preferred_date: new Date(
-          `${selectedDate}T${selectedTime}:00`,
-        ).toISOString(),
-      });
+      const { data, error: insertErr } = await supabase
+        .from("consultations")
+        .insert({
+          patient_id: user.id,
+          analysis_id: latestUpload?.analysis?.id ?? null,
+          status: "pending",
+          urgency:
+            latestUpload?.analysis?.risk_level === "HIGH"
+              ? "HIGH"
+              : latestUpload?.analysis?.risk_level === "CRITICAL"
+                ? "CRITICAL"
+                : "ROUTINE",
+          patient_notes: notes || null,
+          preferred_date: new Date(
+            `${selectedDate}T${selectedTime}:00`,
+          ).toISOString(),
+        })
+        .select("id")
+        .single();
 
       if (insertErr) throw new Error(insertErr.message);
+      setBookedConsultId(data?.id ?? null);
       setIsBooked(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to book consultation");
@@ -133,36 +134,57 @@ export function ConsultationBooking() {
 
   if (isBooked) {
     return (
-      <Card className="max-w-xl mx-auto text-center border-primary-200 fade-in">
-        <CardContent className="pt-10 pb-10">
-          <div className="flex justify-center mb-6">
-            <CheckCircle2 className="h-16 w-16 text-status-safe" />
+      <>
+        <Card className="max-w-xl mx-auto text-center border-primary-200 fade-in">
+          <CardContent className="pt-10 pb-10">
+            <div className="flex justify-center mb-6">
+              <CheckCircle2 className="h-16 w-16 text-status-safe" />
+            </div>
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">
+              Consultation Requested
+            </h2>
+            <p className="text-slate-600 mb-2">
+              Your request has been sent to our dermatology team.
+            </p>
+            <p className="text-slate-500 text-sm mb-8">
+              You requested:{" "}
+              <strong>
+                {selectedDate &&
+                  new Date(selectedDate).toLocaleDateString("en-US", {
+                    weekday: "long",
+                    month: "long",
+                    day: "numeric",
+                  })}{" "}
+                at {selectedTime && formatTime(selectedTime)}
+              </strong>
+              <br />A doctor will confirm or adjust the time based on
+              availability.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              {bookedConsultId && (
+                <Button onClick={() => setIsChatOpen(true)}>
+                  Open Messages
+                </Button>
+              )}
+              <Link to="/patient">
+                <Button variant="outline">Return to Dashboard</Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+        {isChatOpen && bookedConsultId && (
+          <div className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 fade-in">
+            <div className="w-full max-w-3xl h-[80vh] shadow-2xl rounded-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+              <SecureTextChat
+                consultationId={bookedConsultId}
+                role="patient"
+                otherPartyName="Your Doctor"
+                onClose={() => setIsChatOpen(false)}
+              />
+            </div>
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">
-            Consultation Requested
-          </h2>
-          <p className="text-slate-600 mb-2">
-            Your request has been sent to our dermatology team.
-          </p>
-          <p className="text-slate-500 text-sm mb-8">
-            You requested:{" "}
-            <strong>
-              {selectedDate &&
-                new Date(selectedDate).toLocaleDateString("en-US", {
-                  weekday: "long",
-                  month: "long",
-                  day: "numeric",
-                })}{" "}
-              at {selectedTime && formatTime(selectedTime)}
-            </strong>
-            <br />A doctor will confirm or adjust the time based on
-            availability.
-          </p>
-          <Link to="/patient">
-            <Button>Return to Dashboard</Button>
-          </Link>
-        </CardContent>
-      </Card>
+        )}
+      </>
     );
   }
 
@@ -178,8 +200,8 @@ export function ConsultationBooking() {
         </p>
       </div>
 
-      {/* linked report banner */}
-      {latestUpload?.analysis && (
+      {/* Linked analysis — shown if analysis exists */}
+      {latestUpload?.analysis && latestUpload.analysis.status !== "failed" && (
         <div className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-xl p-4">
           <AlertTriangle className="h-5 w-5 text-blue-600 shrink-0" />
           <p className="text-sm text-blue-800">
@@ -191,7 +213,21 @@ export function ConsultationBooking() {
         </div>
       )}
 
-      {/* missing upload block */}
+      {latestUpload?.analysis?.status === "failed" && (
+        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-amber-800">
+              AI analysis failed, but you can still request a consultation.
+            </p>
+            <p className="text-xs text-amber-700 mt-0.5">
+              Our clinical team can review your upload directly.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* No upload yet — must upload first */}
       {!latestUpload && (
         <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4">
           <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
@@ -200,7 +236,8 @@ export function ConsultationBooking() {
               No uploaded image found.
             </p>
             <p className="text-xs text-amber-700 mt-0.5">
-              You must upload a skin image and wait for analysis before booking.
+              You can still request a consultation, but uploading helps your
+              doctor review your case faster.
             </p>
             <Link
               to="/patient/upload"
@@ -221,8 +258,8 @@ export function ConsultationBooking() {
               AI Analysis Still Processing
             </p>
             <p className="text-xs text-blue-700 mt-0.5">
-              Your uploaded image is being analysed. Please wait a moment and
-              refresh this page before booking.
+              Your uploaded image is being analysed. You can still request a
+              consultation now if you want.
             </p>
           </div>
         </div>
@@ -330,8 +367,6 @@ export function ConsultationBooking() {
           disabled={
             !selectedDate ||
             !selectedTime ||
-            !latestUpload ||
-            !latestUpload.analysis?.id ||
             isSubmitting
           }
           onClick={handleSubmit}
@@ -349,3 +384,6 @@ export function ConsultationBooking() {
     </div>
   );
 }
+
+
+
