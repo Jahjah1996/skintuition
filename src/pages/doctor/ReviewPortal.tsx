@@ -104,6 +104,7 @@ export function ReviewPortal() {
           )
         `,
         )
+        .is("doctor_id", null)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -129,9 +130,7 @@ export function ReviewPortal() {
       queryClient.invalidateQueries({ queryKey: ["doctor-consultations"] });
       // sync active view
       if (selected?.id === consultationId) {
-        setSelected((prev) =>
-          prev ? { ...prev, doctor_id: "claimed" } : prev,
-        );
+        setSelected(null);
       }
     },
   });
@@ -281,20 +280,24 @@ export function ReviewPortal() {
                 {selected.doctor.full_name.replace(/^Dr\.\s*/i, "")}
               </span>
             )}
-            <button
-              onClick={() => setCallConsult(selected)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-violet-50 text-violet-700 hover:bg-violet-100 border border-violet-200 transition-colors"
-            >
-              <Video className="h-3.5 w-3.5" />
-              Call Patient
-            </button>
-            <button
-              onClick={() => setChatConsult(selected)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition-colors"
-            >
-              <MessageSquare className="h-3.5 w-3.5" />
-              Message Patient
-            </button>
+            {selected.doctor_id && (
+              <button
+                onClick={() => setCallConsult(selected)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-violet-50 text-violet-700 hover:bg-violet-100 border border-violet-200 transition-colors"
+              >
+                <Video className="h-3.5 w-3.5" />
+                Call Patient
+              </button>
+            )}
+            {selected.doctor_id && (
+              <button
+                onClick={() => setChatConsult(selected)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition-colors"
+              >
+                <MessageSquare className="h-3.5 w-3.5" />
+                Message Patient
+              </button>
+            )}
           </div>
           <button
             onClick={() => setSelected(null)}
@@ -794,16 +797,18 @@ export function ReviewPortal() {
                       <User className="h-4 w-4" />
                     </button>
                   )}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setChatConsult(c);
-                    }}
-                    className="shrink-0 p-2 rounded-full text-blue-500 hover:bg-blue-50 hover:text-blue-700 transition-colors"
-                    title="Message Patient"
-                  >
-                    <MessageSquare className="h-5 w-5" />
-                  </button>
+                  {c.doctor_id && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setChatConsult(c);
+                      }}
+                      className="shrink-0 p-2 rounded-full text-blue-500 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                      title="Message Patient"
+                    >
+                      <MessageSquare className="h-5 w-5" />
+                    </button>
+                  )}
                 </div>
 
                 <ChevronRight className="h-5 w-5 text-slate-300 group-hover:text-slate-500 shrink-0 transition-colors" />
