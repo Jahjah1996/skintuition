@@ -93,7 +93,7 @@ export function ConsultationBooking() {
     if (!selectedDate || !selectedTime) return;
     if (!latestUpload?.analysis?.id) {
       setError(
-        "No completed analysis found. Please upload and wait for analysis before booking.",
+        "No analysis record found yet. Please upload again or wait for analysis creation before booking.",
       );
       return;
     }
@@ -179,7 +179,7 @@ export function ConsultationBooking() {
       </div>
 
       {/* Linked analysis — shown if analysis exists */}
-      {latestUpload?.analysis && (
+      {latestUpload?.analysis && latestUpload.analysis.status !== "failed" && (
         <div className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-xl p-4">
           <AlertTriangle className="h-5 w-5 text-blue-600 shrink-0" />
           <p className="text-sm text-blue-800">
@@ -188,6 +188,20 @@ export function ConsultationBooking() {
             {((latestUpload.analysis.confidence ?? 0) * 100).toFixed(0)}%
             confidence)
           </p>
+        </div>
+      )}
+
+      {latestUpload?.analysis?.status === "failed" && (
+        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-amber-800">
+              AI analysis failed, but you can still request a consultation.
+            </p>
+            <p className="text-xs text-amber-700 mt-0.5">
+              Our clinical team can review your upload directly.
+            </p>
+          </div>
         </div>
       )}
 
@@ -349,3 +363,5 @@ export function ConsultationBooking() {
     </div>
   );
 }
+
+

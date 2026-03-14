@@ -1,34 +1,182 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Suspense, lazy } from "react";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import type { Location } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SessionWatcher } from "./components/shared/SessionWatcher";
-import { AuthLayout } from "./components/layout/AuthLayout";
-import { PatientLogin } from "./pages/auth/PatientLogin";
-import { PatientRegister } from "./pages/auth/PatientRegister";
-import { DoctorLogin } from "./pages/auth/DoctorLogin";
-import { DoctorRegister } from "./pages/auth/DoctorRegister";
-import { ProtectedRoute } from "./components/layout/ProtectedRoute";
-import { PatientLayout } from "./components/layout/PatientLayout";
-import { Dashboard } from "./pages/patient/Dashboard";
-import { UploadFlow } from "./pages/patient/UploadFlow";
-import { EducationView } from "./pages/patient/EducationView";
-import { ConsultationBooking } from "./pages/patient/ConsultationBooking";
-import { ScanHistory } from "./pages/patient/ScanHistory";
-import { DoctorLayout } from "./components/layout/DoctorLayout";
-import { ReviewPortal } from "./pages/doctor/ReviewPortal";
-import { PatientList } from "./pages/doctor/PatientList";
-import { DoctorSettings } from "./pages/doctor/DoctorSettings";
-import { LandingPage } from "./pages/patient/LandingPage";
-import {
-  PrivacyPolicy,
-  MedicalDisclaimer,
-  TermsOfUse,
-} from "./pages/public/LegalPages";
-import { ContactPage } from "./pages/public/ContactPage";
-import { AboutPage } from "./pages/public/AboutPage";
-import { PublicScanner } from "./pages/public/PublicScanner";
 
 // Create a client
 const queryClient = new QueryClient();
+
+const lazyNamed = (factory: () => Promise<any>, name: string) =>
+  lazy(async () => {
+    const module = await factory();
+    return { default: module[name] };
+  });
+
+const AuthLayout = lazyNamed(
+  () => import("./components/layout/AuthLayout"),
+  "AuthLayout",
+);
+const AuthModalLayout = lazyNamed(
+  () => import("./components/layout/AuthModalLayout"),
+  "AuthModalLayout",
+);
+const ProtectedRoute = lazyNamed(
+  () => import("./components/layout/ProtectedRoute"),
+  "ProtectedRoute",
+);
+const PatientLayout = lazyNamed(
+  () => import("./components/layout/PatientLayout"),
+  "PatientLayout",
+);
+const DoctorLayout = lazyNamed(
+  () => import("./components/layout/DoctorLayout"),
+  "DoctorLayout",
+);
+
+const PatientLogin = lazyNamed(
+  () => import("./pages/auth/PatientLogin"),
+  "PatientLogin",
+);
+const PatientRegister = lazyNamed(
+  () => import("./pages/auth/PatientRegister"),
+  "PatientRegister",
+);
+const DoctorLogin = lazyNamed(
+  () => import("./pages/auth/DoctorLogin"),
+  "DoctorLogin",
+);
+const DoctorRegister = lazyNamed(
+  () => import("./pages/auth/DoctorRegister"),
+  "DoctorRegister",
+);
+
+const Dashboard = lazyNamed(
+  () => import("./pages/patient/Dashboard"),
+  "Dashboard",
+);
+const UploadFlow = lazyNamed(
+  () => import("./pages/patient/UploadFlow"),
+  "UploadFlow",
+);
+const EducationView = lazyNamed(
+  () => import("./pages/patient/EducationView"),
+  "EducationView",
+);
+const ConsultationBooking = lazyNamed(
+  () => import("./pages/patient/ConsultationBooking"),
+  "ConsultationBooking",
+);
+const ScanHistory = lazyNamed(
+  () => import("./pages/patient/ScanHistory"),
+  "ScanHistory",
+);
+
+const ReviewPortal = lazyNamed(
+  () => import("./pages/doctor/ReviewPortal"),
+  "ReviewPortal",
+);
+const PatientList = lazyNamed(
+  () => import("./pages/doctor/PatientList"),
+  "PatientList",
+);
+const DoctorSettings = lazyNamed(
+  () => import("./pages/doctor/DoctorSettings"),
+  "DoctorSettings",
+);
+
+const LandingPage = lazyNamed(
+  () => import("./pages/patient/LandingPage"),
+  "LandingPage",
+);
+const PrivacyPolicy = lazyNamed(
+  () => import("./pages/public/LegalPages"),
+  "PrivacyPolicy",
+);
+const MedicalDisclaimer = lazyNamed(
+  () => import("./pages/public/LegalPages"),
+  "MedicalDisclaimer",
+);
+const TermsOfUse = lazyNamed(
+  () => import("./pages/public/LegalPages"),
+  "TermsOfUse",
+);
+const ContactPage = lazyNamed(
+  () => import("./pages/public/ContactPage"),
+  "ContactPage",
+);
+const AboutPage = lazyNamed(
+  () => import("./pages/public/AboutPage"),
+  "AboutPage",
+);
+const PublicScanner = lazyNamed(
+  () => import("./pages/public/PublicScanner"),
+  "PublicScanner",
+);
+
+function AppRoutes() {
+  const location = useLocation();
+  const state = location.state as { backgroundLocation?: Location } | null;
+
+  return (
+    <>
+      <Routes location={state?.backgroundLocation || location}>
+        {/* Public Auth Routes */}
+        <Route element={<AuthLayout />}>
+          <Route path="/login" element={<PatientLogin />} />
+          <Route path="/register" element={<PatientRegister />} />
+          <Route path="/doctor/login" element={<DoctorLogin />} />
+          <Route path="/doctor/register" element={<DoctorRegister />} />
+        </Route>
+
+        {/* Secure Patient Routing */}
+        <Route element={<ProtectedRoute allowedRoles={["patient"]} />}>
+          <Route element={<PatientLayout />}>
+            <Route path="/patient" element={<Dashboard />} />
+            <Route path="/patient/upload" element={<UploadFlow />} />
+            <Route path="/patient/education" element={<EducationView />} />
+            <Route
+              path="/patient/consultation"
+              element={<ConsultationBooking />}
+            />
+            <Route path="/patient/history" element={<ScanHistory />} />
+          </Route>
+        </Route>
+
+        {/* Secure Doctor Routing */}
+        <Route element={<ProtectedRoute allowedRoles={["doctor"]} />}>
+          <Route element={<DoctorLayout />}>
+            <Route path="/doctor" element={<ReviewPortal />} />
+            <Route path="/doctor/patients" element={<PatientList />} />
+            <Route path="/doctor/settings" element={<DoctorSettings />} />
+          </Route>
+        </Route>
+
+        {/* Public Landing Page */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/scan" element={<PublicScanner />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/disclaimer" element={<MedicalDisclaimer />} />
+        <Route path="/terms" element={<TermsOfUse />} />
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+
+      {state?.backgroundLocation && (
+        <Routes>
+          <Route element={<AuthModalLayout />}>
+            <Route path="/login" element={<PatientLogin />} />
+            <Route path="/register" element={<PatientRegister />} />
+            <Route path="/doctor/login" element={<DoctorLogin />} />
+            <Route path="/doctor/register" element={<DoctorRegister />} />
+          </Route>
+        </Routes>
+      )}
+    </>
+  );
+}
 
 function App() {
   return (
@@ -37,49 +185,15 @@ function App() {
         {/* Enforce inactivity logout globally inside routing context */}
         <SessionWatcher />
 
-        <Routes>
-          {/* Public Auth Routes */}
-          <Route element={<AuthLayout />}>
-            <Route path="/login" element={<PatientLogin />} />
-            <Route path="/register" element={<PatientRegister />} />
-            <Route path="/doctor/login" element={<DoctorLogin />} />
-            <Route path="/doctor/register" element={<DoctorRegister />} />
-          </Route>
-
-          {/* Secure Patient Routing */}
-          <Route element={<ProtectedRoute allowedRoles={["patient"]} />}>
-            <Route element={<PatientLayout />}>
-              <Route path="/patient" element={<Dashboard />} />
-              <Route path="/patient/upload" element={<UploadFlow />} />
-              <Route path="/patient/education" element={<EducationView />} />
-              <Route
-                path="/patient/consultation"
-                element={<ConsultationBooking />}
-              />
-              <Route path="/patient/history" element={<ScanHistory />} />
-            </Route>
-          </Route>
-
-          {/* Secure Doctor Routing */}
-          <Route element={<ProtectedRoute allowedRoles={["doctor"]} />}>
-            <Route element={<DoctorLayout />}>
-              <Route path="/doctor" element={<ReviewPortal />} />
-              <Route path="/doctor/patients" element={<PatientList />} />
-              <Route path="/doctor/settings" element={<DoctorSettings />} />
-            </Route>
-          </Route>
-
-          {/* Public Landing Page */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/scan" element={<PublicScanner />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/disclaimer" element={<MedicalDisclaimer />} />
-          <Route path="/terms" element={<TermsOfUse />} />
-
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        <Suspense
+          fallback={
+            <div className="min-h-[100dvh] flex items-center justify-center bg-white">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600" />
+            </div>
+          }
+        >
+          <AppRoutes />
+        </Suspense>
       </BrowserRouter>
     </QueryClientProvider>
   );

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { CheckCircle2, AlertCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 import { ImageUploader } from "../../components/medical/ImageUploader";
 import { ScanningAnimation } from "../../components/shared/ScanningAnimation";
 import { RiskAssessmentWidget } from "../../components/medical/RiskAssessmentWidget";
@@ -261,6 +262,11 @@ export function UploadFlow() {
               <AlertCircle className="h-5 w-5 text-red-600 shrink-0" />
               <p className="text-sm text-red-800">{errorMsg}</p>
             </div>
+            <Link to="/patient/consultation" className="block">
+              <Button className="w-full">
+                Request a Consultation Anyway
+              </Button>
+            </Link>
             <Button
               variant="outline"
               onClick={() => {

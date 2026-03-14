@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { PublicNavbar } from "../../components/shared/PublicNavbar";
 import { Button } from "../../components/core/Button";
@@ -15,6 +15,8 @@ import { CameraCapture } from "../../components/medical/CameraCapture";
 import { ScanningAnimation } from "../../components/shared/ScanningAnimation";
 
 export function PublicScanner() {
+  const location = useLocation();
+  const modalLinkState = { backgroundLocation: location };
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
@@ -358,7 +360,11 @@ export function PublicScanner() {
                             To comply with privacy laws, medical results require
                             a secure account.
                           </p>
-                          <Link to="/register" className="w-full">
+                          <Link
+                            to="/register"
+                            state={modalLinkState}
+                            className="w-full"
+                          >
                             <Button className="w-full shadow-md">
                               Create Free Account{" "}
                               <ArrowRight className="w-4 h-4 ml-2" />
