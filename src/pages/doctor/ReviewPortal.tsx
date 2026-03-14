@@ -24,7 +24,7 @@ import { VideoCallRoom } from "../../components/shared/VideoCallRoom";
 import { supabase } from "../../config/supabase";
 import { cn } from "../../utils/cn";
 
-// ── Types ──────────────────────────────────────────────────────
+// doctor review types
 interface Consultation {
   id: string;
   status: string;
@@ -48,7 +48,7 @@ interface Consultation {
   } | null;
 }
 
-// ── Helpers ────────────────────────────────────────────────────
+// formatting utils
 const RISK_COLORS: Record<string, string> = {
   CRITICAL: "bg-red-100 text-red-700 ring-red-200",
   HIGH: "bg-orange-100 text-orange-700 ring-orange-200",
@@ -72,14 +72,14 @@ function formatRelative(iso: string) {
   return `${Math.floor(hrs / 24)}d ago`;
 }
 
-// ── Main Component ─────────────────────────────────────────────
+// root view
 export function ReviewPortal() {
   const queryClient = useQueryClient();
   const [selected, setSelected] = useState<Consultation | null>(null);
   const [chatConsult, setChatConsult] = useState<Consultation | null>(null);
   const [callConsult, setCallConsult] = useState<Consultation | null>(null);
 
-  // Scheduling state
+  // sched logic
   const [schedDate, setSchedDate] = useState("");
   const [schedTime, setSchedTime] = useState("09:00");
   const [doctorNotes, setDoctorNotes] = useState("");
@@ -113,7 +113,7 @@ export function ReviewPortal() {
     refetchInterval: 30_000,
   });
 
-  // ── Claim consultation mutation (assigns current doctor) ──────
+  // self assign logic
   const claimMutation = useMutation({
     mutationFn: async (consultationId: string) => {
       const {
@@ -128,14 +128,14 @@ export function ReviewPortal() {
     },
     onSuccess: (_data, consultationId) => {
       queryClient.invalidateQueries({ queryKey: ["doctor-consultations"] });
-      // Clear selected if it's the claimed consultation (it will be removed from the list)
+      // sync active view
       if (selected?.id === consultationId) {
         setSelected(null);
       }
     },
   });
 
-  // ── Schedule appointment mutation ────────────────────────────
+  // save new appointment
   const scheduleMutation = useMutation({
     mutationFn: async ({
       id,
@@ -165,7 +165,7 @@ export function ReviewPortal() {
     },
   });
 
-  // ── Mark reviewed mutation ───────────────────────────────────
+  // mark complete
   const reviewMutation = useMutation({
     mutationFn: async ({ id, notes }: { id: string; notes: string }) => {
       const { error } = await supabase
@@ -185,7 +185,7 @@ export function ReviewPortal() {
     },
   });
 
-  // ── Filter by tab ────────────────────────────────────────────
+  // active tab items
   const filtered = consultations
     .filter((c) =>
       activeTab === "pending"
@@ -207,7 +207,7 @@ export function ReviewPortal() {
     ).length,
   };
 
-  // ── Call overlay ──────────────────────────────────────────
+  // video modal
   if (callConsult) {
     const patientName = callConsult.patient?.full_name ?? "Patient";
     return (
@@ -221,7 +221,7 @@ export function ReviewPortal() {
     );
   }
 
-  // ── Chat overlay ──────────────────────────────────────────
+  // message modal
   if (chatConsult) {
     const patientName = chatConsult.patient?.full_name ?? "Patient";
     return (
@@ -238,7 +238,7 @@ export function ReviewPortal() {
     );
   }
 
-  // ── Scheduling panel ─────────────────────────────────────────
+  // right booking pane
   if (selected) {
     const analysis = selected.analysis;
     const minDate = new Date();
@@ -246,7 +246,7 @@ export function ReviewPortal() {
 
     return (
       <div className="max-w-5xl mx-auto p-6 space-y-6 fade-in">
-        {/* Header */}
+        {/* top controls */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">
@@ -308,7 +308,7 @@ export function ReviewPortal() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* AI Analysis summary */}
+          {/* ai report details */}
           <Card>
             <CardHeader>
               <CardTitle className="text-sm uppercase tracking-wider text-slate-500">
@@ -395,9 +395,9 @@ export function ReviewPortal() {
             </CardContent>
           </Card>
 
-          {/* Right panel — status-aware */}
+          {/* conditional state panel */}
           {["reviewed", "closed"].includes(selected.status) ? (
-            /* REVIEWED: read-only summary */
+            /* read only completed case */
             <Card className="border-t-4 border-t-slate-300">
               <CardHeader>
                 <CardTitle className="text-sm uppercase tracking-wider text-slate-500 flex items-center gap-2">
@@ -440,7 +440,7 @@ export function ReviewPortal() {
               </CardContent>
             </Card>
           ) : selected.status === "scheduled" ? (
-            /* SCHEDULED: show confirmed details + complete button */
+            /* confirmed meeting details */
             <Card className="border-t-4 border-t-green-400">
               <CardHeader>
                 <CardTitle className="text-sm uppercase tracking-wider text-slate-500 flex items-center gap-2">
@@ -548,7 +548,7 @@ export function ReviewPortal() {
               </CardContent>
             </Card>
           ) : (
-            /* PENDING: scheduling form */
+            /* available slots form */
             <Card>
               <CardHeader>
                 <CardTitle className="text-sm uppercase tracking-wider text-slate-500">
@@ -622,7 +622,7 @@ export function ReviewPortal() {
     );
   }
 
-  // ── Queue list ────────────────────────────────────────────────
+  // left case list
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6 fade-in">
       <div>
@@ -635,7 +635,7 @@ export function ReviewPortal() {
         </p>
       </div>
 
-      {/* Tabs */}
+      {/* filter tabs */}
       <div className="flex gap-1 bg-slate-100 p-1 rounded-xl w-fit">
         {(["pending", "scheduled", "reviewed"] as const).map((tab) => (
           <button
@@ -665,7 +665,7 @@ export function ReviewPortal() {
         ))}
       </div>
 
-      {/* List */}
+      {/* patient tickets */}
       {isLoading ? (
         <div className="flex items-center justify-center py-16 text-slate-400">
           <Loader2 className="h-6 w-6 animate-spin mr-2" />
@@ -702,7 +702,7 @@ export function ReviewPortal() {
                 }}
                 className="w-full text-left bg-white border border-surface-border rounded-xl p-4 flex items-center gap-4 hover:shadow-md transition-all group"
               >
-                {/* Risk badge */}
+                {/* urgery indicator */}
                 <div
                   className={cn(
                     "p-3 rounded-full ring-1 shrink-0",
@@ -716,7 +716,7 @@ export function ReviewPortal() {
                   )}
                 </div>
 
-                {/* Info */}
+                {/* basic patient data */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-semibold text-slate-900 flex items-center gap-1.5">
@@ -783,7 +783,7 @@ export function ReviewPortal() {
                   )}
                 </div>
 
-                {/* Chat + Claim shortcuts */}
+                {/* item action buttons */}
                 <div className="flex items-center gap-1 shrink-0">
                   {!c.doctor_id && (
                     <button
