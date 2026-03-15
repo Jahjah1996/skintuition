@@ -87,14 +87,18 @@ const analysisSchema: any = {
   ],
 };
 
-// Use the current GA stable model
-const model = genAI.getGenerativeModel({
-  model: "gemini-2.5-flash",
-  generationConfig: {
-    responseMimeType: "application/json",
-    responseSchema: analysisSchema,
+// Force v1beta endpoint — gemini-1.5 / 2.x models are only available there, not the stable v1
+// See: https://ai.google.dev/api/all-methods
+const modelInstance = genAI.getGenerativeModel(
+  {
+    model: "gemini-2.0-flash",
+    generationConfig: {
+      responseMimeType: "application/json",
+      responseSchema: analysisSchema,
+    },
   },
-});
+  { apiVersion: "v1beta" }
+);
 
 export async function analyzeSkinWithGemini(
   base64Image: string,
@@ -113,7 +117,7 @@ export async function analyzeSkinWithGemini(
     "Respond with a strict JSON object following the instructed schema.";
 
   try {
-    const result = await model.generateContent([
+    const result = await modelInstance.generateContent([
       {
         inlineData: {
           data: base64Image,
