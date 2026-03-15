@@ -8,7 +8,6 @@ on:
 
 env:
   NODE_VERSION: "20"
-  PYTHON_VERSION: "3.11"
 
 jobs:
   # ── Lint ────────────────────────────────────────────────────
@@ -28,15 +27,6 @@ jobs:
       - name: Lint backend
         run: cd backend && npm ci --prefer-offline && npm run lint
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with: { python-version: "${{ env.PYTHON_VERSION }}" }
-
-      - name: Lint AI service
-        run: |
-          pip install flake8 --quiet
-          cd ai-service && flake8 . --max-line-length=120 --exclude=__pycache__,.venv
-
   # ── Test ─────────────────────────────────────────────────────
   test:
     name: 🧪 Test
@@ -45,7 +35,6 @@ jobs:
     env:
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
-      AI_SERVICE_URL: http://localhost:8000
       NODE_ENV: test
     steps:
       - uses: actions/checkout@v4
@@ -54,18 +43,8 @@ jobs:
         uses: actions/setup-node@v4
         with: { node-version: "${{ env.NODE_VERSION }}", cache: "npm" }
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with: { python-version: "${{ env.PYTHON_VERSION }}" }
-
       - name: Backend tests
         run: cd backend && npm ci && npm test
-
-      - name: AI service tests
-        run: |
-          cd ai-service
-          pip install -r requirements.txt --quiet
-          pytest tests/ -v --tb=short -x
 
   # ── Security Scan ─────────────────────────────────────────────
   security:
@@ -84,15 +63,6 @@ jobs:
 
       - name: Backend npm audit
         run: cd backend && npm ci --prefer-offline && npm audit --audit-level=high
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with: { python-version: "${{ env.PYTHON_VERSION }}" }
-
-      - name: Python safety check
-        run: |
-          pip install safety --quiet
-          cd ai-service && safety check -r requirements.txt
 
       - name: Trivy filesystem scan
         uses: aquasecurity/trivy-action@master
@@ -150,14 +120,6 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-args: "--prod"
-
-      - name: Deploy AI service to Railway
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: |
-          npm install -g @railway/cli --silent
-          railway up --service ai-service --detach
-        working-directory: ./ai-service
 
       - name: Run Supabase DB migrations
         env:
