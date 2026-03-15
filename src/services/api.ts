@@ -7,11 +7,10 @@ import { supabase } from "../config/supabase";
 // re-export symptoms
 export type { SymptomData };
 
-// Determine API base URL dynamically based on environment
-const isProd = import.meta.env.PROD;
-const BASE_URL = isProd 
-  ? `${window.location.origin}/api/v1` 
-  : (import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3001/api/v1");
+// Use a relative path. 
+// Locally: Vite proxy forwards it to Express.
+// Vercel: vercel.json rewrites it to the serverless function.
+const BASE_URL = "/api/v1";
 
 // typescript types
 

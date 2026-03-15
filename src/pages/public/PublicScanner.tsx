@@ -79,9 +79,8 @@ export function PublicScanner() {
       reader.readAsDataURL(file);
       const base64Image = await base64Promise;
 
-      // call api
-      const apiUrl = import.meta.env.VITE_API_URL ?? "";
-      const res = await fetch(`${apiUrl}/api/v1/public/scan`, {
+      // call api using relative path for Vercel/Local proxy compatibility
+      const res = await fetch(`/api/v1/public/scan`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
