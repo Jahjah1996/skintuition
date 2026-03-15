@@ -87,18 +87,19 @@ const analysisSchema: any = {
   ],
 };
 
-// Force v1beta endpoint — gemini-1.5 / 2.x models are only available there, not the stable v1
-// See: https://ai.google.dev/api/all-methods
-const modelInstance = genAI.getGenerativeModel(
+// Use the current GA stable model
+const model = genAI.getGenerativeModel(
   {
-    model: "gemini-2.0-flash",
-    generationConfig: {
-      responseMimeType: "application/json",
-      responseSchema: analysisSchema,
-    },
+    model: "gemini-2.5-flash",
   },
-  { apiVersion: "v1beta" }
+  { apiVersion: "v1beta" },
 );
+
+// Configure model with generation settings
+model.generationConfig = {
+  responseMimeType: "application/json",
+  responseSchema: analysisSchema,
+};
 
 export async function analyzeSkinWithGemini(
   base64Image: string,
@@ -117,7 +118,7 @@ export async function analyzeSkinWithGemini(
     `Schema: ${JSON.stringify(analysisSchema.properties)}`;
 
   try {
-    const result = await modelInstance.generateContent([
+    const result = await model.generateContent([
       {
         inlineData: {
           data: cleanBase64,
@@ -145,25 +146,20 @@ export async function analyzeSkinWithGemini(
         "AI returned a malformed response. Please try again.",
       );
     }
-  } catch (error: unknown) {
-    // Re-throw our own HttpErrors immediately — don't re-wrap them
+  } catch (error: any) {
     if (error instanceof HttpError) throw error;
 
-    const err = error as { status?: number; statusCode?: number; message?: string; toString?: () => string };
-    // Log the raw error in full so we can see what Google actually sent
-    console.error("[Gemini Service] Raw API error:", JSON.stringify({
-      status: err.status,
-      statusCode: err.statusCode,
-      message: err.message,
-      full: String(error),
-    }));
+    console.error(
+      `[Gemini Service] API Error (Status: ${error.status}):`,
+      error.message,
+    );
 
-    // Detect rate limit: only on explicit 429 status or exact quota messages
+    // format rate limit errs
     const isRateLimit =
-      err.status === 429 ||
-      err.statusCode === 429 ||
-      err.message?.toLowerCase().includes("quota exceeded") ||
-      err.message?.toLowerCase().includes("resource_exhausted");
+      error.status === 429 ||
+      error.statusCode === 429 ||
+      error.message?.toLowerCase().includes("quota exceeded") ||
+      error.message?.toLowerCase().includes("resource_exhausted");
 
     if (isRateLimit) {
       throw new HttpError(
@@ -173,12 +169,11 @@ export async function analyzeSkinWithGemini(
       );
     }
 
-    // Pass the real Google error message through so we can diagnose it
-    const detailedMessage = err.message ? `: ${err.message}` : "";
+    // handle standard errs
     throw new HttpError(
       500,
       "AI_SERVICE_ERROR",
-      `Failed to analyze image with Google AI${detailedMessage}`,
+      `Failed to analyze image with Google AI: ${error.message || "Unknown error"}.`,
     );
   }
 }
