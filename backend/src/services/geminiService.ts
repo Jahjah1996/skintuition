@@ -88,13 +88,17 @@ const analysisSchema: any = {
 };
 
 // Use the current GA stable model
-const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-flash",
-  generationConfig: {
-    responseMimeType: "application/json",
-    responseSchema: analysisSchema,
+// Use the current GA stable model on v1 API
+const model = genAI.getGenerativeModel(
+  {
+    model: "gemini-1.5-flash",
+    generationConfig: {
+      responseMimeType: "application/json",
+      responseSchema: analysisSchema,
+    },
   },
-});
+  { apiVersion: "v1" },
+);
 
 export async function analyzeSkinWithGemini(
   base64Image: string,
