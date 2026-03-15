@@ -141,10 +141,12 @@ export function useWebRTC({
 
     channel
       .on("broadcast", { event: "call-request" }, ({ payload }) => {
+        console.log("[VideoCall] Incoming call-request broadcast:", payload);
         syncCallState("incoming");
         onIncomingCall?.(payload.callerName ?? "");
       })
       .on("broadcast", { event: "call-ended" }, () => {
+        console.log("[VideoCall] Incoming call-ended broadcast.");
         syncCallState("ended");
         onCallEnded?.();
         cleanup(false);
@@ -167,6 +169,7 @@ export function useWebRTC({
 
   // ── Acquire camera + mic ──────────────────────────────────
   const getLocalTracks = useCallback(async () => {
+    console.log("[VideoCall] Acquiring local tracks...");
     let audioTrack = localAudioTrackRef.current;
     let videoTrack = localVideoTrackRef.current;
 
@@ -174,78 +177,97 @@ export function useWebRTC({
       try {
         audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
         localAudioTrackRef.current = audioTrack;
+        console.log("[VideoCall] Microphone acquired.");
       } catch (err) {
-        console.warn("Could not acquire microphone track:", err);
+        console.warn("[VideoCall] Could not acquire microphone track:", err);
       }
     }
 
     if (!videoTrack) {
       try {
-        videoTrack = await AgoraRTC.createCameraVideoTrack({ encoderConfig: "720p_1" });
+        videoTrack = await AgoraRTC.createCameraVideoTrack({
+          encoderConfig: "720p_1",
+        });
         localVideoTrackRef.current = videoTrack;
+        console.log("[VideoCall] Camera acquired.");
 
         // Play local preview into container if ready
         if (localContainerRef.current) {
           videoTrack.play(localContainerRef.current);
         }
       } catch (err) {
-        console.warn("Could not acquire camera track:", err);
+        console.warn("[VideoCall] Could not acquire camera track:", err);
       }
     }
 
     if (!audioTrack && !videoTrack) {
-      throw new Error("Could not access camera or microphone. Please allow permissions or connect a device.");
+      throw new Error(
+        "Could not access camera or microphone. Please allow permissions or connect a device.",
+      );
     }
 
     return { audioTrack, videoTrack };
   }, []);
 
   // ── Join Agora channel and publish ────────────────────────
-  const joinAndPublish = useCallback(
-    async () => {
-      const client = getClient();
-      if (client.connectionState !== "DISCONNECTED") return;
+  const joinAndPublish = useCallback(async () => {
+    const client = getClient();
+    console.log("[VideoCall] Agora client state:", client.connectionState);
+    if (client.connectionState !== "DISCONNECTED") return;
 
-      // Note: Passing null as token works if the project is in App ID testing mode (no certificate).
-      await client.join(APP_ID, agoraChannel, null, null);
-      
-      const { audioTrack, videoTrack } = await getLocalTracks();
-      
-      const tracks = [];
-      if (audioTrack) tracks.push(audioTrack);
-      if (videoTrack) tracks.push(videoTrack);
-      
-      if (tracks.length > 0) {
-        await client.publish(tracks);
-      }
-      
-      syncCallState("connected");
-    },
-    [getClient, getLocalTracks, agoraChannel],
-  );
+    console.log(`[VideoCall] Joining Agora channel: ${agoraChannel}...`);
+    // Note: Passing null as token works if the project is in App ID testing mode (no certificate).
+    await client.join(APP_ID, agoraChannel, null, null);
+    console.log("[VideoCall] Joined Agora channel successfully.");
+
+    const { audioTrack, videoTrack } = await getLocalTracks();
+
+    const tracks = [];
+    if (audioTrack) tracks.push(audioTrack);
+    if (videoTrack) tracks.push(videoTrack);
+
+    if (tracks.length > 0) {
+      console.log(`[VideoCall] Publishing ${tracks.length} tracks...`);
+      await client.publish(tracks);
+      console.log("[VideoCall] Published tracks successfully.");
+    }
+
+    syncCallState("connected");
+  }, [getClient, getLocalTracks, agoraChannel]);
 
   // ── Start call (caller) ───────────────────────────────────
   const startCall = useCallback(
     async (myName = "") => {
       try {
+        console.log("[VideoCall] Initiating call as:", myName);
         setError(null);
         syncCallState("calling");
 
         // Notify the other party securely after channel is subscribed
         let attempts = 0;
-        const trySendCall = () => {
+        const maxAttempts = 5; // Send signaling multiple times to be safe
+
+        const sendOffer = () => {
           if (isSubscribedRef.current && channelRef.current) {
+            console.log(
+              `[VideoCall] Sending call-request broadcast (attempt ${attempts + 1})...`,
+            );
             channelRef.current.send({
               type: "broadcast",
               event: "call-request",
               payload: { callerName: myName },
             });
+
+            if (attempts < maxAttempts) {
+              attempts++;
+              setTimeout(sendOffer, 1000); // Re-send every second for a few seconds
+            }
           } else if (attempts < 50) {
             attempts++;
-            setTimeout(trySendCall, 100);
+            setTimeout(sendOffer, 200);
           }
         };
-        trySendCall();
+        sendOffer();
 
         syncCallState("connecting");
         await joinAndPublish();

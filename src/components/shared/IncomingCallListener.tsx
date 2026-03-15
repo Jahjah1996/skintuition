@@ -162,6 +162,10 @@ export function IncomingCallListener({
       .eq(columnFilter, user.id)
       .in("status", ["pending", "scheduled", "reviewed", "closed"]);
 
+    console.log(
+      `[VideoCall] IncomingCallListener found ${data?.length || 0} active consultations for ${role}.`,
+    );
+
     if (!data) return;
 
     setConsultations(
