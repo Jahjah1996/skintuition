@@ -83,7 +83,7 @@ app.use("/api/v1/public", publicRouter);
 app.use(errorHandler);
 
 // start http server only if not in Vercel
-if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
+if (!process.env.VERCEL) {
   const PORT = parseInt(process.env.PORT ?? "3001", 10);
   app.listen(PORT, () => {
     console.log(`[DermTriage API] Running on http://localhost:${PORT}`);
