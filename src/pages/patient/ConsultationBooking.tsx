@@ -6,6 +6,7 @@ import {
   Loader2,
   MessageSquare,
   UploadCloud,
+  Users,
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -18,11 +19,13 @@ import {
 } from "../../components/core/Card";
 import { SecureTextChat } from "../../components/shared/SecureTextChat";
 import { supabase } from "../../config/supabase";
+import { api } from "../../services/api";
 import { cn } from "../../utils/cn";
 
 export function ConsultationBooking() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [selectedDoctorId, setSelectedDoctorId] = useState<string>("");
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isBooked, setIsBooked] = useState(false);
@@ -63,6 +66,12 @@ export function ConsultationBooking() {
     },
   });
 
+  // fetch available doctors via backend
+  const { data: doctorsList } = useQuery({
+    queryKey: ["doctors-list"],
+    queryFn: () => api.public.getDoctors(),
+  });
+
   // week picker window
   const dates = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
@@ -92,7 +101,7 @@ export function ConsultationBooking() {
   };
 
   const handleSubmit = async () => {
-    if (!selectedDate || !selectedTime) return;
+    if (!selectedDate || !selectedTime || !selectedDoctorId) return;
     setIsSubmitting(true);
     setError(null);
 
@@ -106,6 +115,7 @@ export function ConsultationBooking() {
         .from("consultations")
         .insert({
           patient_id: user.id,
+          doctor_id: selectedDoctorId,
           analysis_id: latestUpload?.analysis?.id ?? null,
           status: "pending",
           urgency:
@@ -161,11 +171,6 @@ export function ConsultationBooking() {
               availability.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              {bookedConsultId && (
-                <Button onClick={() => setIsChatOpen(true)}>
-                  Open Messages
-                </Button>
-              )}
               <Link to="/patient">
                 <Button variant="outline">Return to Dashboard</Button>
               </Link>
@@ -266,6 +271,31 @@ export function ConsultationBooking() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Doctor Selection */}
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center text-lg">
+              <Users className="w-5 h-5 mr-3 text-primary-600" />
+              Select Dermatologist
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <select
+              value={selectedDoctorId}
+              onChange={(e) => setSelectedDoctorId(e.target.value)}
+              className="w-full border border-surface-border rounded-lg p-3 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-primary-300"
+              required
+            >
+              <option value="" disabled>Choose a doctor...</option>
+              {doctorsList?.map(doc => (
+                <option key={doc.id} value={doc.id}>
+                  Dr. {doc.full_name} {doc.parish ? `- Office located in ${doc.parish}` : ''}
+                </option>
+              ))}
+            </select>
+          </CardContent>
+        </Card>
+
         {/* calendar input */}
         <Card>
           <CardHeader>
@@ -367,6 +397,7 @@ export function ConsultationBooking() {
           disabled={
             !selectedDate ||
             !selectedTime ||
+            !selectedDoctorId ||
             isSubmitting
           }
           onClick={handleSubmit}
