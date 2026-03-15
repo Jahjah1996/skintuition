@@ -1,16 +1,43 @@
-import { useEffect, useRef, useCallback, useState } from "react";
-import AgoraRTC from "agora-rtc-sdk-ng";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 import type {
   IAgoraRTCClient,
   ICameraVideoTrack,
   IMicrophoneAudioTrack,
-  IRemoteVideoTrack,
   IRemoteAudioTrack,
+  IRemoteVideoTrack,
 } from "agora-rtc-sdk-ng";
+import AgoraRTC from "agora-rtc-sdk-ng";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../config/supabase";
-import type { RealtimeChannel } from "@supabase/supabase-js";
 
 const APP_ID = import.meta.env.VITE_AGORA_APP_ID as string;
+
+if (!APP_ID) {
+  console.error("[VideoCall] VITE_AGORA_APP_ID is not set in .env.local");
+}
+
+// turn an Agora/browser error into a readable message
+function describeCallError(err: unknown): string {
+  if (err && typeof err === "object") {
+    const e = err as { code?: string; message?: string; name?: string };
+    // Agora permission errors
+    if (e.code === "PERMISSION_DENIED" || e.name === "NotAllowedError") {
+      return "Camera/microphone permission denied. Please allow access and try again.";
+    }
+    // Agora join errors (bad App ID, expired token, etc.)
+    if (
+      e.code === "INVALID_VENDOR_KEY" ||
+      e.code === "DYNAMIC_USE_STATIC_KEY"
+    ) {
+      return "Invalid Agora App ID. Check VITE_AGORA_APP_ID in .env.local.";
+    }
+    if (e.code === "NO_AVAILABLE_CHANNEL") {
+      return "Could not connect to video server. Please try again.";
+    }
+    if (e.message) return e.message;
+  }
+  return "Video call failed. Please check your camera/microphone and try again.";
+}
 
 export type CallState =
   | "idle"
@@ -64,8 +91,8 @@ export function useWebRTC({
   };
 
   const channelName = `call:${consultationId}`;
-  // Use consultationId as Agora channel name (alphanumeric-safe)
-  const agoraChannel = consultationId;
+  // Agora channel names must be alphanumeric — strip hyphens from UUID
+  const agoraChannel = consultationId.replace(/-/g, "");
 
   // ── Create / get Agora client ─────────────────────────────
   const getClient = useCallback(() => {
@@ -223,7 +250,8 @@ export function useWebRTC({
         syncCallState("connecting");
         await joinAndPublish();
       } catch (err) {
-        const msg = err instanceof Error ? err.message : "Could not access camera/microphone.";
+        const msg = describeCallError(err);
+        console.error("[VideoCall] startCall failed:", err);
         setError(msg);
         syncCallState("error");
       }
@@ -237,7 +265,8 @@ export function useWebRTC({
       syncCallState("connecting");
       await joinAndPublish();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Could not access camera/microphone.";
+      const msg = describeCallError(err);
+      console.error("[VideoCall] acceptCall failed:", err);
       setError(msg);
       syncCallState("error");
     }

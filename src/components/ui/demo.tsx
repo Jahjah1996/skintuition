@@ -1,9 +1,12 @@
 import { ScrollExpansionHero } from "./scroll-expansion-hero";
 import { Button } from "../core/Button";
 import { ArrowRight, Shield, Heart, Activity } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 export function HeroDemo() {
+  const location = useLocation();
+  const modalLinkState = { backgroundLocation: location };
+
   return (
     <ScrollExpansionHero
       backgroundImageUrl="https://images.unsplash.com/photo-1579684385127-1ef15d508118?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
@@ -22,7 +25,7 @@ export function HeroDemo() {
       subtitle="Upload a photo, receive an AI-powered risk screening, and connect with certified dermatologists if needed."
       actionButtons={
         <>
-          <Link to="/register" className="w-full sm:w-auto">
+          <Link to="/register" state={modalLinkState} className="w-full sm:w-auto">
             <Button
               size="lg"
               className="w-full sm:w-auto hover:scale-105 transition-transform shadow-md"

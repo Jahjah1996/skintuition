@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { supabase } from "../../config/supabase";
 import { Button } from "../../components/core/Button";
 import { Input } from "../../components/core/Input";
@@ -12,6 +12,10 @@ export function PatientLogin() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
+  const modalLinkState = (location.state as any)?.backgroundLocation
+    ? { backgroundLocation: (location.state as any).backgroundLocation }
+    : undefined;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +47,7 @@ export function PatientLogin() {
   };
 
   return (
-    <div className="flex-1 flex flex-col md:flex-row w-full bg-white relative overflow-hidden">
+    <div className="w-full max-w-4xl flex flex-col md:flex-row bg-white/95 backdrop-blur-2xl relative overflow-hidden rounded-[32px] border border-white/90 shadow-[0_30px_120px_rgba(14,116,144,0.25)] ring-2 ring-primary-200/60">
       {/* Background Splash */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -53,7 +57,7 @@ export function PatientLogin() {
       />
 
       {/* Left side: Animated Themed Branding */}
-      <div className="hidden md:flex md:w-1/2 relative p-12 lg:p-24 flex-col justify-between overflow-hidden">
+      <div className="hidden md:flex md:w-1/2 relative p-8 lg:p-10 flex-col justify-between overflow-hidden bg-white/70 border-r border-white/60">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -63,17 +67,17 @@ export function PatientLogin() {
           <div className="bg-primary-50 text-primary-600 w-16 h-16 rounded-2xl flex items-center justify-center mb-8 shadow-sm">
             <ShieldPlus className="w-8 h-8" />
           </div>
-          <h1 className="text-4xl lg:text-5xl font-extrabold text-slate-900 leading-[1.1] mb-6">
+          <h1 className="text-3xl lg:text-4xl font-extrabold text-slate-900 leading-[1.1] mb-4">
             Your Skin Health. <br />
             <span className="text-primary-600">Instantly Analyzed.</span>
           </h1>
-          <p className="text-lg text-slate-600 max-w-lg mb-12">
+          <p className="text-base text-slate-600 max-w-lg mb-6">
             Log in to view your secure scan results, connect with
             board-certified dermatologists, and track your skin health journey
             over time.
           </p>
 
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div className="flex items-center space-x-4">
               <div className="bg-white p-3 rounded-full shadow-sm">
                 <Scan className="w-6 h-6 text-primary-500" />
@@ -105,9 +109,9 @@ export function PatientLogin() {
       </div>
 
       {/* Right side: Login Form */}
-      <div className="w-full md:w-1/2 bg-white flex flex-col justify-center items-center p-8 lg:p-12 relative z-20 border-l border-slate-100 shadow-[-10px_0_30px_rgba(0,0,0,0.02)]">
-        <div className="w-full max-w-md">
-          <div className="text-center mb-10">
+      <div className="w-full md:w-1/2 bg-white flex flex-col justify-center items-center p-6 lg:p-8 relative z-20">
+        <div className="w-full max-w-sm">
+          <div className="text-center mb-6">
             <h3 className="text-2xl font-bold text-slate-900 mb-2">
               Patient Sign In
             </h3>
@@ -116,7 +120,7 @@ export function PatientLogin() {
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleLogin} className="space-y-4">
             <Input
               label="Email Address"
               type="email"
@@ -166,17 +170,22 @@ export function PatientLogin() {
             </Button>
           </form>
 
-          <div className="text-center text-sm font-medium mt-8 text-slate-500">
+          <div className="text-center text-sm font-medium mt-5 text-slate-500">
             Don't have an account?{" "}
-            <Link to="/register" className="text-primary-600 hover:underline">
+            <Link
+              to="/register"
+              state={modalLinkState}
+              className="text-primary-600 hover:underline"
+            >
               Register here
             </Link>
           </div>
 
-          <div className="text-center text-sm font-medium mt-8 pt-8 border-t border-slate-100 text-slate-500">
+          <div className="text-center text-sm font-medium mt-5 pt-5 border-t border-slate-100 text-slate-500">
             Are you a medical professional?{" "}
             <Link
               to="/doctor/login"
+              state={modalLinkState}
               className="text-emerald-600 hover:underline"
             >
               Doctor Sign In

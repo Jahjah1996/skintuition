@@ -10,6 +10,7 @@ import {
   Menu,
   X,
   Loader2,
+  Bell,
 } from "lucide-react";
 import { cn } from "../../utils/cn";
 import { IncomingCallListener } from "../shared/IncomingCallListener";
@@ -19,6 +20,34 @@ export function DoctorLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const { data: unreadCount = 0 } = useQuery({
+    queryKey: ["unread-messages", "doctor"],
+    queryFn: async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return 0;
+
+      const { data: consultations, error: consultErr } = await supabase
+        .from("consultations")
+        .select("id")
+        .eq("doctor_id", user.id);
+
+      if (consultErr || !consultations?.length) return 0;
+      const ids = consultations.map((c) => c.id);
+
+      const { count, error: msgErr } = await supabase
+        .from("messages")
+        .select("id", { count: "exact", head: true })
+        .in("consultation_id", ids)
+        .neq("sender_role", "doctor");
+
+      if (msgErr) return 0;
+      return count ?? 0;
+    },
+    staleTime: 15_000,
+  });
 
   const { isLoading: isProfileLoading } = useQuery({
     queryKey: ["doctor-profile"],
@@ -40,7 +69,11 @@ export function DoctorLayout() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    navigate("/login");
+    if (location.pathname.startsWith("/doctor")) {
+      navigate("/login");
+    } else {
+      window.location.reload();
+    }
   };
 
   const navLinks = [
@@ -91,7 +124,19 @@ export function DoctorLayout() {
                 })}
               </div>
             </div>
-            <div className="hidden sm:ml-6 sm:flex sm:items-center">
+            <div className="hidden sm:ml-6 sm:flex sm:items-center space-x-2">
+              <Link
+                to="/doctor"
+                className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:text-slate-700"
+                aria-label="Messages"
+              >
+                <Bell className="h-4 w-4" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 h-5 min-w-[1.25rem] rounded-full bg-primary-600 px-1 text-[10px] font-bold text-white flex items-center justify-center">
+                    {unreadCount}
+                  </span>
+                )}
+              </Link>
               <Button
                 variant="ghost"
                 size="sm"
@@ -119,35 +164,86 @@ export function DoctorLayout() {
 
         {/* Mobile menu */}
         {isMobileMenuOpen && (
-          <div className="sm:hidden bg-white border-b border-surface-border">
-            <div className="pt-2 pb-3 space-y-1">
-              {navLinks.map((link) => {
-                const isActive = location.pathname === link.path;
-                const Icon = link.icon;
-                return (
-                  <Link
-                    key={link.name}
-                    to={link.path}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={cn(
-                      "flex items-center px-4 py-2 text-base font-medium",
-                      isActive
-                        ? "bg-primary-50 border-l-4 border-primary-500 text-primary-700"
-                        : "border-l-4 border-transparent text-slate-600 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-800",
-                    )}
-                  >
-                    <Icon className="mr-3 h-5 w-5" />
-                    {link.name}
-                  </Link>
-                );
-              })}
+          <div className="sm:hidden fixed inset-0 z-[60] bg-white relative">
+            <div className="flex items-center justify-between px-4 py-4 border-b border-slate-100">
+              <span className="text-sm font-semibold text-slate-500">
+                Doctor Menu
+              </span>
               <button
-                onClick={handleLogout}
-                className="w-full flex items-center px-4 py-2 border-l-4 border-transparent text-base font-medium text-slate-600 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-800"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-600"
+                aria-label="Close menu"
               >
-                <LogOut className="mr-3 h-5 w-5" />
-                Sign Out
+                <X className="h-5 w-5" />
               </button>
+            </div>
+
+            <div className="h-[calc(100dvh-4.5rem)] overflow-y-auto snap-y snap-mandatory">
+              <div className="min-h-full flex flex-col px-6 py-6 snap-start">
+                <div className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+                  Navigation
+                </div>
+                <div className="space-y-2">
+                  {navLinks.map((link) => {
+                    const isActive = location.pathname === link.path;
+                    const Icon = link.icon;
+                    return (
+                      <Link
+                        key={link.name}
+                        to={link.path}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={cn(
+                          "flex items-center justify-between rounded-2xl border px-4 py-4 text-base font-semibold transition",
+                          isActive
+                            ? "border-primary-200 bg-primary-50 text-primary-700"
+                            : "border-slate-200 text-slate-700 hover:bg-slate-50",
+                        )}
+                      >
+                        <span className="flex items-center">
+                          <Icon className="mr-3 h-5 w-5" />
+                          {link.name}
+                        </span>
+                      </Link>
+                    );
+                  })}
+                </div>
+
+                <div className="mt-6 border-t border-slate-100 pt-6">
+                  <div className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+                    Account
+                  </div>
+                  <Link
+                    to="/doctor"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-4 text-base font-semibold text-slate-700 hover:bg-slate-50"
+                  >
+                    <span className="flex items-center">
+                      <Bell className="mr-3 h-5 w-5" />
+                      Messages
+                    </span>
+                    {unreadCount > 0 && (
+                      <span className="h-6 min-w-[1.5rem] rounded-full bg-primary-600 px-2 text-xs font-bold text-white flex items-center justify-center">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-4 text-base font-semibold text-slate-700 hover:bg-slate-50"
+                  >
+                    <span className="flex items-center">
+                      <LogOut className="mr-3 h-5 w-5" />
+                      Sign Out
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col items-center space-y-2">
+                <span className="h-2 w-2 rounded-full bg-slate-900" />
+                <span className="h-2 w-2 rounded-full bg-slate-300" />
+                <span className="mt-2 h-6 w-6 rounded-full border-2 border-slate-200 border-t-slate-500 animate-spin" />
+              </div>
             </div>
           </div>
         )}

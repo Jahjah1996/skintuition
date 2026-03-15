@@ -1,5 +1,6 @@
-import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "../../components/core/Button";
 import { ImageUploader } from "../../components/medical/ImageUploader";
 import { RiskAssessmentWidget } from "../../components/medical/RiskAssessmentWidget";
@@ -152,7 +153,7 @@ export function UploadFlow() {
           {step === "QUESTIONNAIRE" &&
             "Tell us about your symptoms so the AI can give you a more accurate result."}
           {step === "UPLOAD" &&
-            "Select the lesion location and upload a clear, focused photo. All data is end-to-end encrypted."}
+            "Upload a clear, focused photo of your skin lesion. All data is end-to-end encrypted."}
           {step === "ANALYSING" &&
             "Please wait while we process your image through our secure triage engine."}
           {step === "RESULTS" &&
@@ -168,7 +169,6 @@ export function UploadFlow() {
 
         {step === "UPLOAD" && (
           <>
-            <SkinBodyMap />
             <ImageUploader onUpload={handleUpload} isUploading={isUploading} />
           </>
         )}
@@ -261,6 +261,11 @@ export function UploadFlow() {
               <AlertCircle className="h-5 w-5 text-red-600 shrink-0" />
               <p className="text-sm text-red-800">{errorMsg}</p>
             </div>
+            <Link to="/patient/consultation" className="block">
+              <Button className="w-full">
+                Request a Consultation Anyway
+              </Button>
+            </Link>
             <Button
               variant="outline"
               onClick={() => {

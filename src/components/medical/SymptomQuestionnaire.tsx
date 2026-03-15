@@ -25,8 +25,6 @@ export interface SymptomData {
   sensationsOther: string;
   changes: string;
   changesOther: string;
-  bodyPart: string;
-  bodyPartOther: string;
   additionalContext: string;
 }
 
@@ -172,15 +170,6 @@ const STEPS: StepConfig[] = [
     options: CHANGES,
   },
   {
-    id: "bodyPart",
-    icon: <MapPin className="h-5 w-5" />,
-    title: "Where on your body is it located?",
-    description: "Select the region where the concern is most prominent.",
-    field: "bodyPart",
-    otherField: "bodyPartOther",
-    options: BODY_PARTS,
-  },
-  {
     id: "additionalContext",
     icon: <MessageSquare className="h-5 w-5" />,
     title: "Anything else you'd like to add?",
@@ -204,8 +193,6 @@ const EMPTY: SymptomData = {
   sensationsOther: "",
   changes: "",
   changesOther: "",
-  bodyPart: "",
-  bodyPartOther: "",
   additionalContext: "",
 };
 
