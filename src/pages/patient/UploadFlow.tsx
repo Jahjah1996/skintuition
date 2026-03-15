@@ -59,10 +59,32 @@ export function UploadFlow() {
     setStatusText("Connecting securely to storage...");
 
     try {
-      // get auth user
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      // get auth user (robust check for network instability)
+      let user = null;
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        user = session?.user;
+
+        if (!user) {
+          // try one final refresh call if session is missing
+          const {
+            data: { user: forcedUser },
+          } = await supabase.auth.getUser();
+          user = forcedUser;
+        }
+      } catch (err: unknown) {
+        if (
+          err instanceof Error &&
+          err.message.toLowerCase().includes("fetch")
+        ) {
+          throw new Error(
+            "Connection unstable. Please check your internet and try again.",
+          );
+        }
+      }
+
       if (!user) throw new Error("Not signed in. Please log in and try again.");
 
       // create db record
