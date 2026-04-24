@@ -1,5 +1,8 @@
+/**
+ * Gemini AI skin analysis service.
+ * Ported from backend/src/services/geminiService.ts
+ */
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
-import { HttpError } from "../middleware/errorHandler.js";
 
 const apiKey = process.env.GEMINI_API_KEY;
 
@@ -83,7 +86,8 @@ const analysisSchema: any = {
     },
     regimen: {
       type: SchemaType.OBJECT,
-      description: "A tailored morning and evening skincare routine based on the visual evidence in the skin image.",
+      description:
+        "A tailored morning and evening skincare routine based on the visual evidence in the skin image.",
       properties: {
         morning: {
           type: SchemaType.ARRAY,
@@ -91,12 +95,24 @@ const analysisSchema: any = {
           items: {
             type: SchemaType.OBJECT,
             properties: {
-              step: { type: SchemaType.STRING, description: "Name of the step (e.g., Cleanser, Treatment, SPF)" },
-              product: { type: SchemaType.STRING, description: "Type of product or active ingredient (e.g., Hyaluronic Acid, Vitamin C 15%)" },
-              purpose: { type: SchemaType.STRING, description: "Why this product is recommended based on their skin analysis." }
+              step: {
+                type: SchemaType.STRING,
+                description:
+                  "Name of the step (e.g., Cleanser, Treatment, SPF)",
+              },
+              product: {
+                type: SchemaType.STRING,
+                description:
+                  "Type of product or active ingredient (e.g., Hyaluronic Acid, Vitamin C 15%)",
+              },
+              purpose: {
+                type: SchemaType.STRING,
+                description:
+                  "Why this product is recommended based on their skin analysis.",
+              },
             },
-            required: ["step", "product", "purpose"]
-          }
+            required: ["step", "product", "purpose"],
+          },
         },
         evening: {
           type: SchemaType.ARRAY,
@@ -104,15 +120,25 @@ const analysisSchema: any = {
           items: {
             type: SchemaType.OBJECT,
             properties: {
-              step: { type: SchemaType.STRING, description: "Name of the step (e.g., Double Cleanse, Retinol, Moisturizer)" },
-              product: { type: SchemaType.STRING, description: "Type of product or active ingredient." },
-              purpose: { type: SchemaType.STRING, description: "Why this product is recommended." }
+              step: {
+                type: SchemaType.STRING,
+                description:
+                  "Name of the step (e.g., Double Cleanse, Retinol, Moisturizer)",
+              },
+              product: {
+                type: SchemaType.STRING,
+                description: "Type of product or active ingredient.",
+              },
+              purpose: {
+                type: SchemaType.STRING,
+                description: "Why this product is recommended.",
+              },
             },
-            required: ["step", "product", "purpose"]
-          }
-        }
+            required: ["step", "product", "purpose"],
+          },
+        },
       },
-      required: ["morning", "evening"]
+      required: ["morning", "evening"],
     },
   },
   required: [
@@ -143,7 +169,7 @@ export async function analyzeSkinWithGemini(
   base64Image: string,
   mimeType: string,
 ): Promise<SkinAnalysisOutput> {
-  // sanitize: remove data url prefix if present
+  // Sanitize: remove data url prefix if present
   const cleanBase64 = base64Image.replace(/^data:image\/\w+;base64,/, "");
 
   const prompt =
@@ -170,7 +196,7 @@ export async function analyzeSkinWithGemini(
     const response = await result.response;
     let text = response.text();
 
-    // extract JSON from markdown if AI ignored instructions
+    // Extract JSON from markdown if AI ignored instructions
     if (text.includes("```")) {
       text = text.replace(/```(?:json)?\s*([\s\S]*?)\s*```/g, "$1").trim();
     }
@@ -179,21 +205,21 @@ export async function analyzeSkinWithGemini(
       return JSON.parse(text) as SkinAnalysisOutput;
     } catch {
       console.error("[Gemini Service] Failed to parse AI response:", text);
-      throw new HttpError(
+      throw new GeminiError(
         500,
         "AI_PARSE_ERROR",
         "AI returned a malformed response. Please try again.",
       );
     }
   } catch (error: any) {
-    if (error instanceof HttpError) throw error;
+    if (error instanceof GeminiError) throw error;
 
     console.error(
       `[Gemini Service] API Error (Status: ${error.status}):`,
       error.message,
     );
 
-    // format rate limit errs
+    // Handle rate limit errors
     const isRateLimit =
       error.status === 429 ||
       error.statusCode === 429 ||
@@ -201,18 +227,30 @@ export async function analyzeSkinWithGemini(
       error.message?.toLowerCase().includes("resource_exhausted");
 
     if (isRateLimit) {
-      throw new HttpError(
+      throw new GeminiError(
         429,
         "RATE_LIMIT_EXCEEDED",
         "Google AI API rate limit exceeded. Please wait 1 minute and try again.",
       );
     }
 
-    // handle standard errs
-    throw new HttpError(
+    throw new GeminiError(
       500,
       "AI_SERVICE_ERROR",
       `Failed to analyze image with Google AI: ${error.message || "Unknown error"}.`,
     );
+  }
+}
+
+/** Custom error class (replaces Express HttpError) */
+export class GeminiError extends Error {
+  status: number;
+  code: string;
+
+  constructor(status: number, code: string, message: string) {
+    super(message);
+    this.status = status;
+    this.code = code;
+    this.name = "GeminiError";
   }
 }

@@ -1,13 +1,3 @@
-import {
-  Activity,
-  ChevronLeft,
-  ChevronRight,
-  ClipboardList,
-  Clock,
-  MessageSquare,
-  Thermometer,
-  TrendingUp,
-} from "lucide-react";
 import { useState } from "react";
 import { cn } from "../../utils/cn";
 import { Button } from "../core/Button";
@@ -89,7 +79,7 @@ const CHANGES = [
 
 interface StepConfig {
   id: string;
-  icon: React.ReactNode;
+  icon: string;
   title: string;
   description: string;
   field: keyof SymptomData;
@@ -101,7 +91,7 @@ interface StepConfig {
 const STEPS: StepConfig[] = [
   {
     id: "symptomType",
-    icon: <ClipboardList className="h-5 w-5" />,
+    icon: "assignment",
     title: "What describes your concern?",
     description:
       "Select the option that best matches what you are experiencing. Choose \u2018Other\u2019 to describe something not listed.",
@@ -111,7 +101,7 @@ const STEPS: StepConfig[] = [
   },
   {
     id: "duration",
-    icon: <Clock className="h-5 w-5" />,
+    icon: "schedule",
     title: "How long have you had this?",
     description:
       "Knowing the duration helps the AI distinguish acute reactions from chronic conditions.",
@@ -121,7 +111,7 @@ const STEPS: StepConfig[] = [
   },
   {
     id: "painLevel",
-    icon: <Thermometer className="h-5 w-5" />,
+    icon: "device_thermostat",
     title: "How would you rate your discomfort?",
     description:
       "Select the level that best represents how discomfort is affecting you right now.",
@@ -130,7 +120,7 @@ const STEPS: StepConfig[] = [
   },
   {
     id: "sensations",
-    icon: <Activity className="h-5 w-5" />,
+    icon: "vital_signs",
     title: "What sensations are you experiencing?",
     description:
       "Select the sensation that most closely matches what you feel in or around the affected area.",
@@ -140,7 +130,7 @@ const STEPS: StepConfig[] = [
   },
   {
     id: "changes",
-    icon: <TrendingUp className="h-5 w-5" />,
+    icon: "trending_up",
     title: "Has the area changed recently?",
     description:
       "Recent changes can indicate progression. Be as accurate as possible.",
@@ -150,7 +140,7 @@ const STEPS: StepConfig[] = [
   },
   {
     id: "additionalContext",
-    icon: <MessageSquare className="h-5 w-5" />,
+    icon: "chat",
     title: "Anything else you'd like to add?",
     description:
       "Tell the AI anything else about your condition — recent triggers, medications, allergies, family history, etc. This is optional but very helpful.",
@@ -227,21 +217,21 @@ export function SymptomQuestionnaire({ onComplete }: Props) {
   };
 
   return (
-    <div className="max-w-2xl mx-auto w-full">
+    <div className="max-w-2xl mx-auto w-full font-body-md">
       {/* progress header */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-semibold text-primary-600 uppercase tracking-wide">
+          <span className="text-xs font-semibold text-primary uppercase tracking-wide">
             Step {currentStep + 1} of {totalSteps}
           </span>
-          <span className="text-xs text-slate-400">
+          <span className="text-xs text-secondary">
             {progressPct}% complete
           </span>
         </div>
         {/* Progress bar */}
-        <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+        <div className="w-full h-2 bg-surface-dim rounded-full overflow-hidden">
           <div
-            className="h-full bg-primary-500 rounded-full transition-all duration-500 ease-out"
+            className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
             style={{ width: `${progressPct}%` }}
           />
         </div>
@@ -253,10 +243,10 @@ export function SymptomQuestionnaire({ onComplete }: Props) {
               className={cn(
                 "h-1.5 rounded-full transition-all duration-300",
                 i === currentStep
-                  ? "w-6 bg-primary-500"
+                  ? "w-6 bg-primary"
                   : i < currentStep
-                    ? "w-1.5 bg-primary-300"
-                    : "w-1.5 bg-slate-200",
+                    ? "w-1.5 bg-primary/40"
+                    : "w-1.5 bg-surface-dim",
               )}
             />
           ))}
@@ -266,7 +256,7 @@ export function SymptomQuestionnaire({ onComplete }: Props) {
       {/* question card */}
       <div
         className={cn(
-          "bg-white border border-surface-border rounded-2xl shadow-sm overflow-hidden transition-all duration-220",
+          "bg-white border border-surface-dim rounded-2xl shadow-sm overflow-hidden transition-all duration-220",
           animating && direction === "forward" && "opacity-0 translate-x-4",
           animating && direction === "back" && "opacity-0 -translate-x-4",
           !animating && "opacity-100 translate-x-0",
@@ -274,16 +264,16 @@ export function SymptomQuestionnaire({ onComplete }: Props) {
         style={{ transition: "opacity 0.22s ease, transform 0.22s ease" }}
       >
         {/* Card header */}
-        <div className="bg-gradient-to-r from-primary-50 to-slate-50 border-b border-surface-border px-6 py-5">
+        <div className="bg-surface-lowest border-b border-surface-dim px-6 py-5">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary-100 text-primary-600">
-              {step.icon}
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-surface-container text-primary">
+              <span className="material-symbols-outlined">{step.icon}</span>
             </div>
             <div>
-              <h2 className="text-base font-semibold text-slate-900">
+              <h2 className="text-lg font-serif italic text-primary">
                 {step.title}
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-sm text-secondary mt-0.5">
                 {step.description}
               </p>
             </div>
@@ -299,8 +289,8 @@ export function SymptomQuestionnaire({ onComplete }: Props) {
               rows={5}
               value={currentValue}
               onChange={(e) => setField(step.field, e.target.value)}
-              placeholder="e.g. I recently changed my skincare routine, I take antihistamines daily, similar skin conditions run in my family…"
-              className="w-full rounded-lg border border-surface-border bg-slate-50 px-4 py-3 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-none transition"
+              placeholder="e.g. I recently changed my skincare routine, I take antihistamines daily..."
+              className="w-full rounded-lg border border-surface-dim bg-surface-lowest px-4 py-3 text-sm text-primary placeholder:text-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none transition"
             />
           ) : (
             <>
@@ -308,7 +298,7 @@ export function SymptomQuestionnaire({ onComplete }: Props) {
               <div>
                 <label
                   htmlFor={`select-${step.id}`}
-                  className="block text-xs font-medium text-slate-600 mb-1.5"
+                  className="block text-sm font-medium text-primary mb-1.5"
                 >
                   Select an option
                 </label>
@@ -318,12 +308,11 @@ export function SymptomQuestionnaire({ onComplete }: Props) {
                     value={currentValue}
                     onChange={(e) => {
                       setField(step.field, e.target.value);
-                      // Clear the "other" text when switching away from Other
                       if (step.otherField && e.target.value !== "Other") {
                         setField(step.otherField, "");
                       }
                     }}
-                    className="w-full appearance-none rounded-lg border border-surface-border bg-white px-4 py-3 pr-10 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent transition cursor-pointer"
+                    className="w-full appearance-none rounded-lg border border-surface-dim bg-white px-4 py-3 pr-10 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition cursor-pointer"
                   >
                     <option value="" disabled>
                       — Please choose —
@@ -334,17 +323,18 @@ export function SymptomQuestionnaire({ onComplete }: Props) {
                       </option>
                     ))}
                   </select>
-                  {/* Chevron icon */}
-                  <ChevronRight className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rotate-90 h-4 w-4 text-slate-400" />
+                  <span className="material-symbols-outlined pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-secondary">
+                    expand_more
+                  </span>
                 </div>
               </div>
 
               {/* "Other" free-text expander */}
               {isOtherSelected && step.otherField && (
-                <div className="rounded-lg border border-primary-200 bg-primary-50 p-4 space-y-2 animate-fadeIn">
+                <div className="rounded-lg border border-surface-dim bg-surface-lowest p-4 space-y-2 animate-fadeIn">
                   <label
                     htmlFor={`other-${step.id}`}
-                    className="block text-xs font-medium text-primary-700"
+                    className="block text-sm font-medium text-primary"
                   >
                     Please describe your answer
                   </label>
@@ -355,9 +345,9 @@ export function SymptomQuestionnaire({ onComplete }: Props) {
                     onChange={(e) => setField(step.otherField!, e.target.value)}
                     placeholder="Type your answer here…"
                     maxLength={200}
-                    className="w-full rounded-md border border-primary-300 bg-white px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-400 transition"
+                    className="w-full rounded-md border border-surface-dim bg-white px-3 py-2.5 text-sm text-primary placeholder:text-secondary focus:outline-none focus:ring-2 focus:ring-primary transition"
                   />
-                  <p className="text-right text-xs text-slate-400">
+                  <p className="text-right text-xs text-secondary">
                     {otherValue.length}/200
                   </p>
                 </div>
@@ -365,8 +355,9 @@ export function SymptomQuestionnaire({ onComplete }: Props) {
 
               {/* Validation hint */}
               {!isCurrentStepValid() && currentValue !== "" && (
-                <p className="text-xs text-amber-600 flex items-center gap-1">
-                  <span>⚠</span> Please describe your answer in the field above.
+                <p className="text-sm text-amber-600 flex items-center gap-1.5 mt-2">
+                  <span className="material-symbols-outlined text-[18px]">warning</span> 
+                  Please describe your answer in the field above.
                 </p>
               )}
             </>
@@ -375,26 +366,26 @@ export function SymptomQuestionnaire({ onComplete }: Props) {
       </div>
 
       {/* prev/next buttons */}
-      <div className="flex items-center justify-between mt-5">
+      <div className="flex items-center justify-between mt-6">
         <Button
           variant="outline"
           onClick={handleBack}
           disabled={currentStep === 0}
-          className="gap-1.5"
+          className="gap-1.5 border-surface-dim text-secondary hover:text-primary rounded-full px-5"
         >
-          <ChevronLeft className="h-4 w-4" />
+          <span className="material-symbols-outlined text-[18px]">chevron_left</span>
           Back
         </Button>
 
         <Button
           onClick={handleNext}
           disabled={!isCurrentStepValid() && !step.isTextarea}
-          className="gap-1.5 min-w-[130px]"
+          className="gap-1.5 min-w-[130px] rounded-full bg-primary text-on-primary hover:bg-primary/90 px-6 py-2.5 shadow-sm hover:shadow transition-all"
         >
           {currentStep < totalSteps - 1 ? (
             <>
               Next
-              <ChevronRight className="h-4 w-4" />
+              <span className="material-symbols-outlined text-[18px]">chevron_right</span>
             </>
           ) : (
             "Continue to Upload"
@@ -404,7 +395,7 @@ export function SymptomQuestionnaire({ onComplete }: Props) {
 
       {/* skip hint on last step */}
       {currentStep === totalSteps - 1 && (
-        <p className="text-center text-xs text-slate-400 mt-3">
+        <p className="text-center text-sm text-secondary mt-4 italic">
           This step is optional — you can leave it blank and click "Continue to
           Upload".
         </p>

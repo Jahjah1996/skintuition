@@ -8,8 +8,6 @@ import {
   Routes,
   useLocation,
 } from "react-router-dom";
-const PatientMessages = lazy(() => import("./pages/patient/Messages"));
-const DoctorMessages = lazy(() => import("./pages/doctor/Messages"));
 
 import { ToastContainer } from "./components/core/Toast";
 import { ProtectedRoute } from "./components/layout/ProtectedRoute";
@@ -37,10 +35,6 @@ const PatientLayout = lazyNamed(
   () => import("./components/layout/PatientLayout"),
   "PatientLayout",
 );
-const DoctorLayout = lazyNamed(
-  () => import("./components/layout/DoctorLayout"),
-  "DoctorLayout",
-);
 
 const PatientLogin = lazyNamed(
   () => import("./pages/auth/PatientLogin"),
@@ -49,14 +43,6 @@ const PatientLogin = lazyNamed(
 const PatientRegister = lazyNamed(
   () => import("./pages/auth/PatientRegister"),
   "PatientRegister",
-);
-const DoctorLogin = lazyNamed(
-  () => import("./pages/auth/DoctorLogin"),
-  "DoctorLogin",
-);
-const DoctorRegister = lazyNamed(
-  () => import("./pages/auth/DoctorRegister"),
-  "DoctorRegister",
 );
 
 const Dashboard = lazyNamed(
@@ -71,26 +57,9 @@ const EducationView = lazyNamed(
   () => import("./pages/patient/EducationView"),
   "EducationView",
 );
-const ConsultationBooking = lazyNamed(
-  () => import("./pages/patient/ConsultationBooking"),
-  "ConsultationBooking",
-);
 const ScanHistory = lazyNamed(
   () => import("./pages/patient/ScanHistory"),
   "ScanHistory",
-);
-
-const ReviewPortal = lazyNamed(
-  () => import("./pages/doctor/ReviewPortal"),
-  "ReviewPortal",
-);
-const PatientList = lazyNamed(
-  () => import("./pages/doctor/PatientList"),
-  "PatientList",
-);
-const DoctorSettings = lazyNamed(
-  () => import("./pages/doctor/DoctorSettings"),
-  "DoctorSettings",
 );
 
 const LandingPage = lazyNamed(
@@ -117,10 +86,7 @@ const AboutPage = lazyNamed(
   () => import("./pages/public/AboutPage"),
   "AboutPage",
 );
-const PublicScanner = lazyNamed(
-  () => import("./pages/public/PublicScanner"),
-  "PublicScanner",
-);
+
 
 function AppRoutes() {
   const location = useLocation();
@@ -133,36 +99,22 @@ function AppRoutes() {
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<PatientLogin />} />
           <Route path="/register" element={<PatientRegister />} />
-          <Route path="/doctor/login" element={<DoctorLogin />} />
-          <Route path="/doctor/register" element={<DoctorRegister />} />
         </Route>
 
         {/* Secure Patient Routing */}
-        <Route element={<ProtectedRoute allowedRoles={["patient"]} />}>
+        <Route element={<ProtectedRoute />}>
           <Route path="/patient" element={<PatientLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="upload" element={<UploadFlow />} />
             <Route path="scan/:id" element={<ScanHistory />} />
             <Route path="history" element={<ScanHistory />} />
             <Route path="education" element={<EducationView />} />
-            <Route path="messages" element={<PatientMessages />} />
-            <Route path="consultation" element={<ConsultationBooking />} />
-          </Route>
-        </Route>
-
-        {/* Secure Doctor Routing */}
-        <Route element={<ProtectedRoute allowedRoles={["doctor"]} />}>
-          <Route path="/doctor" element={<DoctorLayout />}>
-            <Route index element={<ReviewPortal />} />
-            <Route path="patients" element={<PatientList />} />
-            <Route path="settings" element={<DoctorSettings />} />
-            <Route path="messages" element={<DoctorMessages />} />
           </Route>
         </Route>
 
         {/* Public Landing Page */}
         <Route path="/" element={<LandingPage />} />
-        <Route path="/scan" element={<PublicScanner />} />
+
         <Route path="/about" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
@@ -177,8 +129,6 @@ function AppRoutes() {
           <Route element={<AuthModalLayout />}>
             <Route path="/login" element={<PatientLogin />} />
             <Route path="/register" element={<PatientRegister />} />
-            <Route path="/doctor/login" element={<DoctorLogin />} />
-            <Route path="/doctor/register" element={<DoctorRegister />} />
           </Route>
         </Routes>
       )}
@@ -199,8 +149,8 @@ function App() {
 
         <Suspense
           fallback={
-            <div className="min-h-[100dvh] flex items-center justify-center bg-white">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600" />
+            <div className="min-h-[100dvh] flex items-center justify-center bg-surface-dark">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-500" />
             </div>
           }
         >

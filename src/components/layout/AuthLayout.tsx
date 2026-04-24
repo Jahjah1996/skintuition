@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Outlet, Navigate } from "react-router-dom";
 import { PublicNavbar } from "../shared/PublicNavbar";
+import { Footer } from "../shared/Footer";
 import { supabase } from "../../config/supabase";
 
 export function AuthLayout() {
@@ -48,6 +49,7 @@ export function AuthLayout() {
           <Outlet />
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

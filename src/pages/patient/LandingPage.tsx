@@ -1,624 +1,247 @@
-import type { Variants } from "framer-motion";
-import { motion } from "framer-motion";
-import {
-  Activity,
-  AlertTriangle,
-  CheckCircle2,
-  Clock,
-  Heart,
-  Lock,
-  Search,
-  Shield,
-  Stethoscope,
-} from "lucide-react";
 import { Link } from "react-router-dom";
-import { Button } from "../../components/core/Button";
 import { PublicNavbar } from "../../components/shared/PublicNavbar";
-
-// frame animations
-const fadeInUp: Variants = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
-};
-
-const staggerContainer: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-    },
-  },
-};
+import { Footer } from "../../components/shared/Footer";
 
 export function LandingPage() {
   return (
-    <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-primary-100 selection:text-primary-900 overflow-x-hidden">
-      {/* top nav */}
+    <div className="min-h-screen bg-background text-on-background font-body-md antialiased overflow-x-hidden">
       <PublicNavbar />
 
-      {/* page hero */}
-      <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden bg-slate-50 min-h-[90vh] flex items-center shadow-inner">
-        {/* hero backdrop */}
-        <div className="absolute inset-0 z-0 bg-slate-100">
-          <img
-            src="https://images.unsplash.com/photo-1576091160550-2173ff9e5ee5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2500&q=80"
-            alt="Modern Health Tech"
-            className="w-full h-full object-cover origin-center opacity-30 scale-105"
-          />
-          {/* contrast gradient */}
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-50 via-slate-50/95 to-transparent mix-blend-multiply" />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-slate-50" />
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={staggerContainer}
-            className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center"
-          >
-            {/* hero text */}
-            <div className="max-w-2xl px-2">
-              <motion.div
-                variants={fadeInUp}
-                className="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-md text-primary-800 px-4 py-2 rounded-full text-sm font-semibold mb-6 border border-primary-200 shadow-sm"
-              >
-                <Activity className="w-4 h-4 text-primary-600 animate-pulse" />
-                <span>AI-Assisted Skin Screening — Not a Diagnosis</span>
-              </motion.div>
-
-              <motion.h1
-                variants={fadeInUp}
-                className="text-5xl lg:text-7xl font-extrabold tracking-tight text-slate-900 mb-6 leading-[1.1] drop-shadow-sm"
-              >
-                Understand Your Skin. <br />
-                <span className="text-primary-600">
-                  Instantly &amp; Safely.
-                </span>
-              </motion.h1>
-
-              <motion.p
-                variants={fadeInUp}
-                className="text-lg lg:text-xl text-slate-700 mb-8 leading-relaxed max-w-lg font-medium"
-              >
-                Upload a photo, receive an AI-powered risk screening, and
-                connect with certified dermatologists if your condition warrants
-                follow-up. Faster answers, less anxiety.
-              </motion.p>
-
-              <motion.div
-                variants={fadeInUp}
-                className="flex flex-col sm:flex-row gap-4"
-              >
-                <a href="#how-it-works" className="w-full sm:w-auto">
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="w-full sm:w-auto bg-white/50 backdrop-blur hover:bg-white shadow-sm py-6 px-8 border-slate-300"
-                  >
-                    See How It Works
-                  </Button>
-                </a>
-              </motion.div>
-
-              <motion.div
-                variants={fadeInUp}
-                className="mt-10 flex flex-wrap items-center gap-6 text-sm text-slate-600 font-semibold bg-white/60 backdrop-blur p-4 rounded-xl border border-white/40 shadow-sm"
-              >
-                <div className="flex items-center">
-                  <Lock className="w-4 h-4 mr-1.5 text-slate-500" /> HIPAA
-                  Compliant
-                </div>
-                <div className="flex items-center">
-                  <Shield className="w-4 h-4 mr-1.5 text-slate-500" /> Encrypted
-                  &amp; Private
-                </div>
-                <div className="flex items-center">
-                  <Heart className="w-4 h-4 mr-1.5 text-red-500" /> No Data
-                  Sold. Ever.
-                </div>
-              </motion.div>
-            </div>
-
-            {/* desktop visual gap */}
-            <div className="hidden lg:block relative h-full">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95, rotate: 2, y: 0 }}
-                animate={{
-                  opacity: 1,
-                  scale: 1,
-                  rotate: 0,
-                  y: [0, -15, 0],
-                }}
-                transition={{
-                  duration: 5,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  opacity: { duration: 1, delay: 0.3 },
-                  scale: { duration: 1, delay: 0.3 },
-                  rotate: { duration: 1, delay: 0.3 },
-                }}
-                className="absolute right-0 top-12 lg:top-20 bg-white p-6 rounded-[2rem] shadow-2xl border border-slate-100 max-w-sm w-full backdrop-blur-md bg-white/90"
-              >
-                <div className="space-y-6">
-                  <div className="flex items-center space-x-3 border-b border-slate-100 pb-4">
-                    <div className="w-12 h-12 bg-primary-50 rounded-full flex items-center justify-center">
-                      <Activity className="text-primary-600 w-6 h-6" />
-                    </div>
-                    <div>
-                      <div className="font-bold text-slate-900">
-                        AI Screening Report
-                      </div>
-                      <div className="text-xs text-slate-500">
-                        Processing complete
-                      </div>
-                    </div>
-                  </div>
-                  <div className="aspect-video bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 flex items-center justify-center relative overflow-hidden">
-                    <Search className="w-8 h-8 text-primary-300 mb-2 absolute" />
-                    <div className="h-[2px] w-full bg-primary-400 absolute left-0 shadow-[0_0_15px_rgba(14,165,233,0.8)] animate-scan-line z-20" />
-                  </div>
-                  <div className="space-y-3">
-                    <div className="bg-slate-50 p-3 rounded-lg flex items-center justify-between border border-slate-100">
-                      <span className="text-sm font-medium text-slate-700">
-                        Triage Priority
-                      </span>
-                      <div className="flex items-center text-status-warning font-bold text-sm">
-                        <span className="w-2 h-2 rounded-full bg-status-warning mr-2" />{" "}
-                        Moderate
-                      </div>
-                    </div>
-                    <div className="bg-primary-50 text-primary-800 p-3 rounded-lg text-xs font-medium border border-primary-100 flex gap-2 items-start">
-                      <Stethoscope className="w-4 h-4 shrink-0 mt-0.5" />A
-                      licensed dermatologist is available to review this case
-                      securely.
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* problem statement section */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-            className="text-center max-w-3xl mx-auto mb-16"
-          >
-            <motion.h2
-              variants={fadeInUp}
-              className="text-3xl lg:text-4xl font-extrabold text-slate-900 mb-6 tracking-tight"
-            >
-              Why Acting Early on Skin Concerns Matters
-            </motion.h2>
-            <motion.p
-              variants={fadeInUp}
-              className="text-lg text-slate-600 font-medium"
-            >
-              Most people wait too long before seeking professional care — not
-              because they don't care, but because the system makes it hard to
-              know when to act.
-            </motion.p>
-          </motion.div>
-
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-            className="grid lg:grid-cols-3 gap-8"
-          >
-            {[
-              {
-                icon: Clock,
-                title: "Long Wait Times Create Uncertainty",
-                text: "The average wait for a dermatology appointment can exceed 4 weeks. In the meantime, people are left guessing whether their concern is serious.",
-              },
-              {
-                icon: AlertTriangle,
-                title: "Delayed Care Can Have Consequences",
-                text: "Skin conditions caught early are far easier to manage. Waiting can permit conditions to progress unnecessarily.",
-              },
-              {
-                icon: Search,
-                title: "Online Searches Create Anxiety",
-                text: "Searching symptoms online without medical context frequently leads to confusion, fear, or self-misdiagnosis.",
-              },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                variants={fadeInUp}
-                className="bg-slate-50 p-10 rounded-3xl border border-slate-100 hover:border-primary-100 hover:shadow-xl transition-all duration-300 group"
-              >
-                <div className="w-14 h-14 bg-white text-primary-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:bg-primary-600 group-hover:text-white transition-colors">
-                  <item.icon className="w-7 h-7" />
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-4">
-                  {item.title}
-                </h3>
-                <p className="text-slate-600 font-medium leading-relaxed">
-                  {item.text}
-                </p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* solution benefits */}
-      <section className="py-24 overflow-hidden bg-slate-50 border-y border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-            className="flex flex-col lg:flex-row items-center gap-16"
-          >
-            <motion.div variants={fadeInUp} className="lg:w-1/2">
-              <div className="inline-flex items-center space-x-2 bg-emerald-100 text-emerald-800 px-3 py-1.5 rounded-full text-sm font-semibold mb-6">
-                <img src="/dermify-logo.png" className="w-4 h-4 object-contain" alt="Dermify" />
-                <span>The Dermify Solution</span>
-              </div>
-              <h2 className="text-3xl lg:text-4xl font-extrabold text-slate-900 mb-6 tracking-tight">
-                A Safer Way to Get a Second Opinion Before the Waiting Room
-              </h2>
-              <p className="text-lg text-slate-700 font-medium mb-8 leading-relaxed">
-                Dermify combines AI-assisted image screening with access to
-                real, licensed dermatologists — so you can make an informed
-                decision about whether and how urgently to seek care.
+      <main>
+        {/* Hero Section */}
+        <section className="relative min-h-[700px] flex items-start overflow-hidden px-10 pt-[140px] pb-20">
+          <div className="absolute inset-0 z-0">
+            <img
+              alt="Dermatology Clinic Background"
+              className="w-full h-full object-cover opacity-20"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyZWy2cocHfhdVtBDPkzE_m2CKvzCPPqHvzDPjBFZdD9V-YhIoa1mTuUliaFuCF5OAfTpSZybn-GdT_U7u1CMvFdy43Xkc0yHyYP5GYHb5zdmDJSWBvTGfz7bMVvCN8xJMJ919sV5wQ1_po1GeXTHhn3BicVYYuuS5RPJvZVPm3yB572oyf7DPTMtQa3lz7JeH1r24A9_VKiyQ3qMU7dvFaGFMANlxLgRhKX2plOxFmOYRRIotoxQwJ_EYDULd4qguF_p-kl2xryM"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-background via-background/60 to-transparent"></div>
+          </div>
+          <div className="container mx-auto relative z-10 grid grid-cols-12 gap-grid-gutter">
+            <div className="col-span-12 md:col-span-7 space-y-8">
+              <span className="font-data-display text-data-display text-primary uppercase tracking-[0.2em]">
+                Dermatology Precision AI
+              </span>
+              <h1 className="font-display-lg text-display-lg text-primary max-w-2xl">
+                Your skin's health, <br />
+                <span className="italic">decoded</span> with clinical intelligence.
+              </h1>
+              <p className="font-body-lg text-body-lg text-secondary max-w-xl">
+                Experience the sanctuary of high-end skincare through the lens of
+                advanced medical technology. Start your professional-grade
+                assessment today.
               </p>
-
-              <ul className="space-y-6">
-                {[
-                  "AI-assisted preliminary skin screening — not a diagnosis",
-                  "Instant triage priority level: Low, Moderate, High, or Critical",
-                  "Plain-language explanations of what the AI observed",
-                  "Book a follow-up with a licensed dermatologist securely",
-                ].map((feature, i) => (
-                  <motion.li
-                    variants={fadeInUp}
-                    key={i}
-                    className="flex items-start bg-white p-4 rounded-xl shadow-sm border border-slate-100"
-                  >
-                    <CheckCircle2 className="w-6 h-6 text-emerald-500 mr-4 flex-shrink-0 mt-0.5" />
-                    <span className="text-slate-800 font-semibold">
-                      {feature}
-                    </span>
-                  </motion.li>
-                ))}
-              </ul>
-            </motion.div>
-
-            <motion.div
-              variants={fadeInUp}
-              className="lg:w-1/2 grid grid-cols-2 gap-4"
-            >
-              <div className="space-y-4 mt-8 lg:mt-12">
-                <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-lg hover:-translate-y-1 transition-transform">
-                  <Activity className="w-10 h-10 text-primary-600 mb-6" />
-                  <h4 className="text-xl font-extrabold text-slate-900 mb-2">
-                    Available 24/7
-                  </h4>
-                  <p className="text-slate-600 font-medium leading-relaxed">
-                    Screen your concern any time — no appointment needed.
-                  </p>
-                </div>
-                <div className="bg-primary-900 p-8 rounded-3xl shadow-xl hover:-translate-y-1 transition-transform">
-                  <Lock className="w-10 h-10 text-primary-300 mb-6" />
-                  <h4 className="text-xl font-extrabold text-white mb-2">
-                    Bank-Level Security
-                  </h4>
-                  <p className="text-primary-100 font-medium leading-relaxed">
-                    Data is end-to-end encrypted and never sold.
-                  </p>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <div className="bg-emerald-900 p-8 rounded-3xl shadow-xl hover:-translate-y-1 transition-transform">
-                  <CheckCircle2 className="w-10 h-10 text-emerald-300 mb-6" />
-                  <h4 className="text-xl font-extrabold text-white mb-2">
-                    Fast Results
-                  </h4>
-                  <p className="text-emerald-100 font-medium leading-relaxed">
-                    Receive a preliminary assessment in under a minute.
-                  </p>
-                </div>
-                <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-lg hover:-translate-y-1 transition-transform">
-                  <Stethoscope className="w-10 h-10 text-primary-600 mb-6" />
-                  <h4 className="text-xl font-extrabold text-slate-900 mb-2">
-                    Real Doctors
-                  </h4>
-                  <p className="text-slate-600 font-medium leading-relaxed">
-                    Licensed dermatologists review all flagged cases.
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* process steps */}
-      <section
-        id="how-it-works"
-        className="py-24 bg-slate-950 text-white relative overflow-hidden"
-      >
-        {/* glow effects */}
-        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary-900/30 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-emerald-900/20 rounded-full blur-[120px] pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-            className="text-center max-w-3xl mx-auto mb-20"
-          >
-            <motion.h2
-              variants={fadeInUp}
-              className="text-3xl lg:text-5xl font-extrabold mb-6 tracking-tight"
-            >
-              How Dermify Works
-            </motion.h2>
-            <motion.p
-              variants={fadeInUp}
-              className="text-xl text-slate-300 font-medium"
-            >
-              From photo upload to professional consultation — five simple
-              steps.
-            </motion.p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-5 gap-8 relative">
-            <div className="hidden md:block absolute top-8 left-12 right-12 h-0.5 bg-slate-800 z-0" />
-
-            {[
-              {
-                num: "01",
-                title: "Create a free, secure account in under a minute",
-              },
-              {
-                num: "02",
-                title:
-                  "Upload a clear photo of the skin area you're concerned about",
-              },
-              {
-                num: "03",
-                title:
-                  "Our AI screens the image and generates a priority level",
-              },
-              {
-                num: "04",
-                title: "Review your plain-language report and confidence score",
-              },
-              {
-                num: "05",
-                title: "Book follow-up with a licensed dermatologist if needed",
-              },
-            ].map((step, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.15, duration: 0.5, ease: "easeOut" }}
-                viewport={{ once: true, margin: "-100px" }}
-                className="relative z-10 text-center flex flex-col items-center"
-              >
-                <div className="w-16 h-16 rounded-full bg-slate-900 border-4 border-slate-800 shadow-[0_0_20px_rgba(14,165,233,0.15)] flex items-center justify-center font-bold text-xl mb-6 text-primary-400">
-                  {step.num}
-                </div>
-                <h4 className="font-semibold text-slate-200 leading-snug px-2">
-                  {step.title}
-                </h4>
-              </motion.div>
-            ))}
-          </div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.8 }}
-            className="mt-20 bg-slate-900/80 backdrop-blur border border-slate-800 rounded-2xl p-8 max-w-3xl mx-auto text-center shadow-2xl"
-          >
-            <p className="text-slate-300 font-medium leading-relaxed">
-              <strong className="text-white">Important Context:</strong> The AI
-              screening report is a triage tool designed to help you understand
-              urgency — it is{" "}
-              <span className="text-primary-400 font-bold border-b border-primary-500/50 pb-0.5">
-                not a clinical diagnosis
-              </span>
-              . All results include a confidence indicator and are supported by
-              licensed medical professionals when follow-up action is warranted.
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* human review explanation */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-            className="text-center max-w-3xl mx-auto mb-16"
-          >
-            <motion.h2
-              variants={fadeInUp}
-              className="text-3xl lg:text-4xl font-extrabold text-slate-900 mb-6 tracking-tight"
-            >
-              AI Screening + Human Expertise
-            </motion.h2>
-            <motion.p
-              variants={fadeInUp}
-              className="text-lg text-slate-600 font-medium"
-            >
-              We never rely on AI alone. Every case that requires professional
-              review is assigned to a licensed, board-certified dermatologist —
-              not a chatbot.
-            </motion.p>
-          </motion.div>
-
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-            className="grid md:grid-cols-3 gap-8"
-          >
-            {[
-              {
-                icon: Activity,
-                color: "bg-primary-50 text-primary-600 border-primary-100",
-                title: "Step 1 — AI Triage",
-                body: "Our AI model screens your uploaded image for visual characteristics associated with common skin conditions. It assigns a triage level and provides a summary of what it observed — in plain language.",
-              },
-              {
-                icon: AlertTriangle,
-                color: "bg-amber-50 text-amber-600 border-amber-100",
-                title: "Step 2 — Priority Flagging",
-                body: "If the AI assigns a Moderate, High, or Critical triage level, the case is automatically escalated for human review. All screening results include transparency on confidence levels so you always know how certain the AI is.",
-              },
-              {
-                icon: Stethoscope,
-                color: "bg-emerald-50 text-emerald-600 border-emerald-100",
-                title: "Step 3 — Doctor Consultation",
-                body: "A real licensed dermatologist reviews your case. You can communicate via secure in-app messaging or schedule a live video consultation directly on the platform — no phone tag, no waiting rooms.",
-              },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                variants={fadeInUp}
-                className="bg-white p-10 rounded-3xl border border-slate-200 shadow-sm hover:shadow-lg transition-shadow"
-              >
-                <div
-                  className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-8 border shadow-sm ${item.color}`}
-                >
-                  <item.icon className="w-7 h-7" />
-                </div>
-                <h3 className="text-xl font-extrabold text-slate-900 mb-4">
-                  {item.title}
-                </h3>
-                <p className="text-slate-600 leading-relaxed font-medium">
-                  {item.body}
-                </p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* final call to action */}
-      <section className="py-24 bg-gradient-to-br from-primary-700 to-primary-900 relative overflow-hidden text-center shadow-inner">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAzNHYtbDItMiAyaDZWMTJoLTZsLTIgMi0yLTJINHYxaDF2MmgtMXYxSDB2MmgyLjlsMiAySDF2Mmg0LjVsLTIgMkgwdjJoOGw2LTV2LTJsLTItMnYtMmwtMi0ydjJIMXYtMmgtMXYyaDBWMTRoMTB2MTJoNHYtaDR2LTEwaDR2Mmgwdi0xTDE0IDI0aDJ2MmgtMnYtMnpNNiAyMmg3djJINnptMTAtMnYxaDh2LTFoLTh6TTggMTJoLTFoNHYyaC00djFoNnYtMmgtMXYxSDN2LTFoNXptOC0xMGgydjJoLTJ6bS00IDJoLTJ2MmgyVjA0eiIvPjwvZz48L3N2Zz4=')] opacity-10" />
-
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={staggerContainer}
-          className="max-w-4xl mx-auto px-4 relative z-10"
-        >
-          <motion.h2
-            variants={fadeInUp}
-            className="text-4xl lg:text-5xl font-extrabold text-white mb-6 tracking-tight drop-shadow-md"
-          >
-            Get Clarity on Your Skin Health — Today
-          </motion.h2>
-          <motion.p
-            variants={fadeInUp}
-            className="text-primary-100 text-lg mb-10 max-w-2xl mx-auto font-medium"
-          >
-            Free to start. No appointment needed. A licensed dermatologist is
-            ready to review your case if the AI recommends it.
-          </motion.p>
-          <motion.div variants={fadeInUp}>
-            <a href="#how-it-works">
-              <Button
-                size="lg"
-                className="bg-white text-primary-900 hover:bg-slate-50 border-none shadow-2xl text-lg px-10 py-7 rounded-full hover:scale-105 transition-transform font-bold"
-              >
-                Learn More
-              </Button>
-            </a>
-          </motion.div>
-          <motion.p
-            variants={fadeInUp}
-            className="text-primary-300 text-sm mt-8 font-medium"
-          >
-            This platform provides preliminary triage assistance only — not
-            medical advice or diagnosis. In an emergency, call 911 immediately.
-          </motion.p>
-        </motion.div>
-      </section>
-
-      {/* site footer */}
-      <footer className="bg-slate-900 text-slate-400 py-16 border-t border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
-            <div className="flex items-center space-x-2">
-              <img src="/dermify-logo.png" className="h-8 w-8 object-contain" alt="Dermify Logo" />
-              <span className="text-2xl font-bold tracking-tight text-white">
-                Dermify
-              </span>
-            </div>
-
-            <div className="flex flex-wrap justify-center gap-8 text-sm font-medium">
-              {[
-                { name: "About", path: "/about" },
-                { name: "Privacy Policy", path: "/privacy" },
-                { name: "Medical Disclaimer", path: "/disclaimer" },
-                { name: "Contact", path: "/contact" },
-                { name: "Terms of Use", path: "/terms" },
-              ].map((link) => (
-                <Link
-                  key={link.name}
-                  to={link.path}
-                  className="hover:text-primary-400 transition-colors"
-                >
-                  {link.name}
+              <div className="pt-4 flex gap-4 items-center">
+                <Link to="/patient/upload">
+                  <button className="bg-primary text-on-primary px-8 py-4 rounded-full font-body-md font-medium tracking-wide shadow-lg hover:shadow-xl transition-all scale-100 hover:scale-105 active:scale-95 relative overflow-hidden group">
+                    <span className="relative z-10">Start My Scan</span>
+                    <div className="absolute inset-0 bg-white/10 scale-0 group-hover:scale-150 transition-transform duration-700 rounded-full"></div>
+                  </button>
                 </Link>
-              ))}
+                <Link to="/about">
+                  <button className="border border-secondary px-8 py-4 rounded-full font-body-md text-secondary hover:bg-secondary/5 transition-colors">
+                    View Methodology
+                  </button>
+                </Link>
+              </div>
             </div>
           </div>
+        </section>
 
-          <div className="border-t border-slate-800 pt-10 text-xs text-center leading-relaxed max-w-5xl mx-auto opacity-70">
-            <p className="mb-3 uppercase tracking-widest font-bold text-slate-500">
-              Important Medical Disclaimer
-            </p>
-            <p className="font-medium text-slate-400">
-              Dermify provides AI-assisted triage screening and educational
-              guidance only. It does{" "}
-              <strong className="text-slate-300">
-                not provide medical diagnoses
-              </strong>
-              , prescribe treatment, or constitute clinical medical advice. The
-              automated risk assessment is a preliminary support tool designed
-              to help users decide whether to seek professional care — it is not
-              a substitute for the judgement of a qualified healthcare
-              professional. Always consult your physician or a licensed
-              dermatologist for any skin-related medical concern. If you are
-              experiencing a medical emergency, call 911 or go to your nearest
-              emergency department immediately.
-            </p>
-            <p className="mt-8">
-              &copy; {new Date().getFullYear()} Dermify Ltd. All rights
-              reserved.
-            </p>
+        {/* Bento Grid Services */}
+        <section className="px-10 py-section-gap max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 h-auto">
+            <div className="md:col-span-2 bg-white rounded-[24px] p-8 shadow-[0_10px_40px_rgba(0,0,0,0.04)] relative overflow-hidden h-[400px]">
+              <div className="absolute top-0 right-0 w-1/2 h-full opacity-40 mix-blend-multiply">
+                <img
+                  alt="Clinical Analysis"
+                  className="w-full h-full object-cover rounded-l-[100%]"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAbGH5tQtwwIRaHBTP2c_j7pT-APpIDh61Ks6_r9Nb8gebHJVTX4eprWTD6Kl3negvJY_28_wmmutqkOV89Rpb6IbHOBqgQKiuV9fFlpHg3tABYGuYVXlqQNOWpRq_UbeWZkeSgqA6hGNN03xuZv9XTePXyrap2qm1j7NGDFF9zokOImwjlm8xtyQwo4cLijmBJqwJQiCWZLZu0SQRGV1nddOU0fgItVcZ6J2Shuj4GR1DEg8vghpyTfPy3oD1JgjYgOUsXPut_AM"
+                />
+              </div>
+              <div className="relative z-10 h-full flex flex-col justify-end max-w-[50%]">
+                <h3 className="font-headline-lg text-headline-lg text-primary mb-4">
+                  Precision Analysis
+                </h3>
+                <p className="font-body-md text-secondary mb-6">
+                  Our AI detects patterns invisible to the naked eye, mapping over
+                  200 health markers in seconds.
+                </p>
+                <Link
+                  to="/patient/upload"
+                  className="font-data-display text-data-display text-primary flex items-center gap-2 hover:opacity-80 transition-opacity"
+                >
+                  EXPLORE THE TECHNOLOGY{" "}
+                  <span className="material-symbols-outlined text-sm">
+                    arrow_forward
+                  </span>
+                </Link>
+              </div>
+            </div>
+
+            <div className="bg-primary-container text-on-primary-container rounded-[24px] p-8 shadow-xl flex flex-col justify-between">
+              <span className="material-symbols-outlined text-4xl text-on-primary-container/40">
+                clinical_notes
+              </span>
+              <div>
+                <h3 className="font-headline-md text-headline-md text-white mb-2 italic">
+                  Clinical Protocols
+                </h3>
+                <p className="font-body-md opacity-80 mb-6">
+                  Each recommendation is cross-referenced with global
+                  dermatological databases.
+                </p>
+                <Link to="/about">
+                  <button className="w-full py-3 bg-white/10 hover:bg-white/20 rounded-lg text-white font-medium transition-colors">
+                    Learn More
+                  </button>
+                </Link>
+              </div>
+            </div>
+
+            <div className="bg-secondary-container rounded-[24px] p-8 flex flex-col items-center text-center justify-center space-y-4">
+              <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-sm">
+                <span className="material-symbols-outlined text-secondary">
+                  verified_user
+                </span>
+              </div>
+              <h3 className="font-headline-md text-headline-md text-primary">
+                Privacy Shield™
+              </h3>
+              <p className="font-body-md text-on-secondary-container">
+                Your data is encrypted using military-grade standards, ensuring
+                absolute anonymity.
+              </p>
+            </div>
+
+            <div className="md:col-span-2 bg-white rounded-[24px] p-8 shadow-[0_10px_40px_rgba(0,0,0,0.04)] grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+              <div>
+                <h3 className="font-headline-lg text-headline-lg text-primary mb-4">
+                  Tailored Regimens
+                </h3>
+                <p className="font-body-md text-secondary mb-4">
+                  Forget generic products. Skintuition designs a morning and
+                  evening ritual based on your Ai analysis.
+                </p>
+                <div className="flex gap-4">
+                  <span className="p-2 bg-background rounded-full">
+                    <span className="material-symbols-outlined text-primary">
+                      eco
+                    </span>
+                  </span>
+                  <span className="p-2 bg-background rounded-full">
+                    <span className="material-symbols-outlined text-primary">
+                      science
+                    </span>
+                  </span>
+                  <span className="p-2 bg-background rounded-full">
+                    <span className="material-symbols-outlined text-primary">
+                      water_drop
+                    </span>
+                  </span>
+                </div>
+              </div>
+              <img
+                alt="Skincare Products"
+                className="w-full h-48 object-cover rounded-xl"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdn51JDgzXgK3Xe0XW6RfrQXR5N4hDziGm5SyqiYxgPXsjggsLxjm5p0LKt-NCSBoY-VxjI4xANSYktIwmDEhgi6__QE1nRO4e2jOKvyAiD_5W8GxPCLuUXtLsI09M1fRz01-kimntt5MgpZvSdHymaqN5p2Qxt9UjlKjCpPhDd-8bprVFFPt2dbJf3kQ6U1O_pNmXBcjCAEEG7Ihj1H_7wMyeVaciVfElfCsHghKGfHjU-ZHuvgMC-bQ2lCQCBGhdH7yIIXKrZXU"
+              />
+            </div>
           </div>
-        </div>
-      </footer>
+        </section>
+
+        {/* Glassmorphic AI Section */}
+        <section className="px-10 py-section-gap bg-surface-container overflow-hidden">
+          <div className="container mx-auto grid grid-cols-12 gap-grid-gutter items-center">
+            <div className="col-span-12 md:col-span-5 order-2 md:order-1">
+              <div className="relative">
+                <img
+                  alt="AI Mapping"
+                  className="w-full rounded-[40px] shadow-2xl"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXQJQtUlVuy0IXAh25Fs8ue3T6mckt6mRnH_aA30JEhd3rBTWiuXKLy584m_cMP4rwCrcIp3ztmVoENFsBP9pq6huzs6n4H2zdX4UkHV-RWtFFlmHbdfFNYWpADp9gJtIHZ8kOLxCziE96ZDZPMF1ewXb_IUJiL-n8iEuuVZ44LJ8cjqZY5vzCbqTe2FrS3i6nvLve3iLO1I363YeVn13YIBo9eOT4NppEVq039qD5H1wJcY6APicpx_a8sp8ieb6dJ-p3MMI8LzA"
+                />
+                {/* Glass Overlay */}
+                <div className="absolute -bottom-10 -right-10 bg-white/70 backdrop-blur-xl p-8 rounded-[32px] border border-white/20 shadow-2xl max-w-sm hidden md:block">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
+                    <span className="font-data-display text-data-display text-primary">
+                      SCANNING HYDRATION LEVEL... 88%
+                    </span>
+                  </div>
+                  <p className="font-body-md text-secondary italic">
+                    "Epidermal barrier strength optimal. Slight hyperpigmentation
+                    detected in zone 4."
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="col-span-12 md:col-span-6 md:offset-1 order-1 md:order-2 space-y-6">
+              <h2 className="font-display-lg text-display-lg text-primary italic">
+                Intelligence at the surface.
+              </h2>
+              <p className="font-body-lg text-body-lg text-secondary">
+                Our platform bridges the gap between expensive clinic visits and
+                home maintenance. By utilizing multi-spectral analysis from your
+                mobile device, Skintuition provides a level of depth previously
+                reserved for world-class dermatology labs.
+              </p>
+              <ul className="space-y-4">
+                <li className="flex items-center gap-3 font-body-md text-primary">
+                  <span
+                    className="material-symbols-outlined text-emerald-800"
+                    style={{ fontVariationSettings: "'FILL' 1" }}
+                  >
+                    check_circle
+                  </span>
+                  Texture and Pore Refinement
+                </li>
+                <li className="flex items-center gap-3 font-body-md text-primary">
+                  <span
+                    className="material-symbols-outlined text-emerald-800"
+                    style={{ fontVariationSettings: "'FILL' 1" }}
+                  >
+                    check_circle
+                  </span>
+                  UV Damage Assessment
+                </li>
+                <li className="flex items-center gap-3 font-body-md text-primary">
+                  <span
+                    className="material-symbols-outlined text-emerald-800"
+                    style={{ fontVariationSettings: "'FILL' 1" }}
+                  >
+                    check_circle
+                  </span>
+                  Inflammation & Sensitivity Tracking
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* Newsletter / CTA */}
+        <section className="px-10 py-section-gap text-center max-w-3xl mx-auto">
+          <h2 className="font-headline-lg text-headline-lg text-primary mb-6">
+            Stay informed on skin health.
+          </h2>
+          <p className="font-body-md text-secondary mb-8">
+            Join our curated list of individuals committed to longevity and
+            precision care.
+          </p>
+          <div className="flex flex-col md:flex-row gap-4">
+            <input
+              className="flex-grow bg-surface-container border-none rounded-full px-8 py-4 focus:ring-1 focus:ring-primary font-body-md outline-none"
+              placeholder="Your clinical email"
+              type="email"
+            />
+            <button className="bg-primary text-on-primary px-10 py-4 rounded-full font-body-md font-medium">
+              Subscribe
+            </button>
+          </div>
+        </section>
+      </main>
+
+      <Footer />
     </div>
   );
 }

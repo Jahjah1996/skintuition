@@ -74,9 +74,8 @@ export function PatientLogin() {
             <span className="text-primary-600">Instantly Analyzed.</span>
           </h1>
           <p className="text-base text-slate-600 max-w-lg mb-6">
-            Log in to view your secure scan results, connect with
-            board-certified dermatologists, and track your skin health journey
-            over time.
+            Log in to view your secure scan results, receive AI-powered
+            assessments, and track your skin health journey over time.
           </p>
 
           <div className="space-y-4">
@@ -165,7 +164,7 @@ export function PatientLogin() {
 
             <Button
               type="submit"
-              className="w-full text-lg h-12 rounded-xl transition-all shadow-lg font-bold bg-primary-600 hover:bg-primary-700 shadow-primary-600/20"
+              className="w-full text-lg h-12 rounded-xl transition-all shadow-lg font-bold bg-primary text-on-primary hover:bg-primary/90 shadow-primary/20"
               isLoading={isLoading}
             >
               Sign In
@@ -183,16 +182,7 @@ export function PatientLogin() {
             </Link>
           </div>
 
-          <div className="text-center text-sm font-medium mt-5 pt-5 border-t border-slate-100 text-slate-500">
-            Are you a medical professional?{" "}
-            <Link
-              to="/doctor/login"
-              state={modalLinkState}
-              className="text-emerald-600 hover:underline"
-            >
-              Doctor Sign In
-            </Link>
-          </div>
+
         </div>
       </div>
     </div>

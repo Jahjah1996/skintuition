@@ -182,7 +182,7 @@ export function PatientRegister() {
 
             <Button
               type="submit"
-              className="w-full text-lg h-12 rounded-xl transition-all shadow-lg font-bold bg-primary-600 hover:bg-primary-700 shadow-primary-600/20"
+              className="w-full text-lg h-12 rounded-xl transition-all shadow-lg font-bold bg-primary text-on-primary hover:bg-primary/90 shadow-primary/20"
               isLoading={isLoading}
             >
               Create Account
@@ -212,16 +212,7 @@ export function PatientRegister() {
             </Link>
           </div>
 
-          <div className="text-center text-sm font-medium mt-3 text-slate-500">
-            Are you a medical professional?{" "}
-            <Link
-              to="/doctor/register"
-              state={modalLinkState}
-              className="text-emerald-600 hover:underline"
-            >
-              Doctor Sign Up
-            </Link>
-          </div>
+
         </div>
       </div>
     </div>

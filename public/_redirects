@@ -1,0 +1,4 @@
+/api/v1/public/scan  /.netlify/functions/scan  200
+/api/v1/analysis/*  /.netlify/functions/analysis  200
+/api/v1/health  /.netlify/functions/health  200
+/*  /index.html  200

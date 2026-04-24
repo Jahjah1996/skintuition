@@ -85,9 +85,10 @@ async function runPipeline(job: PipelineJob): Promise<void> {
       disclaimer: safeResult.disclaimer,
       referral_required: safeResult.referralRequired,
       emergency_flag: safeResult.emergencyFlag,
-      xai_metadata: aiResult.bounding_box
-        ? { bounding_box: aiResult.bounding_box }
-        : {},
+      xai_metadata: {
+        ...(aiResult.bounding_box ? { bounding_box: aiResult.bounding_box } : {}),
+        ...(aiResult.regimen ? { regimen: aiResult.regimen } : {}),
+      },
       completed_at: new Date().toISOString(),
     })
     .eq("id", job.analysisId);

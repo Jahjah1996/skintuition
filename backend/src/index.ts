@@ -5,7 +5,6 @@ import helmet from "helmet";
 import { requestAuditLogger } from "./middleware/auditLogger.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { analysisRouter } from "./routes/analysis.js";
-import { consultationsRouter } from "./routes/consultations.js";
 import { healthRouter } from "./routes/health.js";
 import { publicRouter } from "./routes/public.js";
 import { uploadsRouter } from "./routes/uploads.js";
@@ -40,7 +39,9 @@ app.use(
       const isAllowed =
         allowedOrigins.includes(origin) ||
         /^https:\/\/[a-zA-Z0-9-]+\.vercel\.app$/.test(origin) ||
-        allowedOrigins.some((o) => origin.startsWith(o));
+        allowedOrigins.some((o) => origin.startsWith(o)) ||
+        origin.startsWith("http://localhost:") ||
+        origin.startsWith("http://127.0.0.1:");
       if (isAllowed) return cb(null, true);
       cb(new Error("Not allowed by CORS"));
     },
@@ -76,7 +77,6 @@ app.use(requestAuditLogger);
 app.use("/api/v1/health", healthRouter);
 app.use("/api/v1/uploads", uploadsRouter);
 app.use("/api/v1/analysis", analysisRouter);
-app.use("/api/v1/consultations", consultationsRouter);
 app.use("/api/v1/public", publicRouter);
 
 // global error catch
@@ -86,7 +86,7 @@ app.use(errorHandler);
 if (!process.env.VERCEL) {
   const PORT = parseInt(process.env.PORT ?? "3001", 10);
   app.listen(PORT, () => {
-    console.log(`[DermTriage API] Running on http://localhost:${PORT}`);
+    console.log(`[Skintuition API] Running on http://localhost:${PORT}`);
   });
 }
 

@@ -5,7 +5,7 @@ const supabaseAnon = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
 if (!supabaseUrl || !supabaseAnon) {
   throw new Error(
-    "[DermTriage] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY.",
+    "[Skintuition] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY.",
   );
 }
 

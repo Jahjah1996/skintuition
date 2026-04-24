@@ -1,11 +1,3 @@
-import {
-  AlertCircle,
-  Camera,
-  Image as ImageIcon,
-  ShieldCheck,
-  UploadCloud,
-  X,
-} from "lucide-react";
 import React, { useCallback, useState } from "react";
 import { cn } from "../../utils/cn";
 import { Button } from "../core/Button";
@@ -90,7 +82,7 @@ export function ImageUploader({ onUpload, isUploading }: ImageUploaderProps) {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full font-body-md">
       {useCamera ? (
         <CameraCapture
           onCapture={(file) => {
@@ -107,27 +99,25 @@ export function ImageUploader({ onUpload, isUploading }: ImageUploaderProps) {
             onDragOver={handleDrag}
             onDrop={handleDrop}
             className={cn(
-              "relative flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-xl cursor-pointer transition-colors bg-surface-muted",
+              "relative flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-xl cursor-pointer transition-colors bg-surface-lowest",
               dragActive
-                ? "border-primary-500 bg-primary-50"
-                : "border-slate-300 hover:bg-slate-50",
-              error && "border-status-danger bg-red-50",
+                ? "border-primary bg-primary/5"
+                : "border-surface-dim hover:bg-surface-container",
+              error && "border-red-500 bg-red-50",
             )}
           >
             <div className="flex flex-col items-center justify-center pt-5 pb-6 px-4 text-center">
-              <UploadCloud
-                className={cn(
-                  "w-12 h-12 mb-4",
-                  dragActive ? "text-primary-500" : "text-slate-400",
-                )}
-              />
-              <p className="mb-2 text-sm text-slate-700">
-                <span className="font-semibold text-primary-600">
+              <span className={cn(
+                  "material-symbols-outlined text-[48px] mb-4",
+                  dragActive ? "text-primary" : "text-secondary"
+              )}>cloud_upload</span>
+              <p className="mb-2 text-sm text-primary">
+                <span className="font-semibold text-primary">
                   Click to upload
                 </span>{" "}
                 or drag and drop
               </p>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-secondary">
                 Secure JPEG, PNG (MAX. 10MB)
               </p>
             </div>
@@ -139,26 +129,26 @@ export function ImageUploader({ onUpload, isUploading }: ImageUploaderProps) {
             />
           </label>
 
-          <div className="mt-4 flex items-center justify-center">
-            <span className="text-slate-400 text-sm mr-4">or</span>
-            <Button variant="outline" onClick={() => setUseCamera(true)}>
-              <Camera className="w-4 h-4 mr-2" />
+          <div className="mt-6 flex items-center justify-center">
+            <span className="text-secondary text-sm mr-4">or</span>
+            <Button variant="outline" onClick={() => setUseCamera(true)} className="rounded-full border-surface-dim text-secondary hover:text-primary">
+              <span className="material-symbols-outlined mr-2 text-[18px]">photo_camera</span>
               Take Photo
             </Button>
           </div>
         </div>
       ) : (
-        <div className="w-full rounded-xl border border-surface-border bg-white p-4 shadow-sm">
+        <div className="w-full rounded-xl border border-surface-dim bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4 overflow-hidden">
-              <div className="flex-shrink-0 h-16 w-16 bg-slate-100 rounded-lg flex items-center justify-center">
-                <ImageIcon className="h-8 w-8 text-slate-400" />
+              <div className="flex-shrink-0 h-16 w-16 bg-surface-lowest rounded-lg flex items-center justify-center border border-surface-dim">
+                <span className="material-symbols-outlined text-[32px] text-secondary">image</span>
               </div>
               <div className="truncate">
-                <p className="text-sm font-medium text-slate-900 truncate pr-4">
+                <p className="text-sm font-medium text-primary truncate pr-4">
                   {selectedFile.name}
                 </p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-secondary mt-0.5">
                   {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
                 </p>
               </div>
@@ -166,24 +156,24 @@ export function ImageUploader({ onUpload, isUploading }: ImageUploaderProps) {
             {!isUploading && (
               <button
                 onClick={() => setSelectedFile(null)}
-                className="p-2 text-slate-400 hover:text-status-danger transition-colors cursor-pointer"
+                className="p-2 text-secondary hover:text-red-500 transition-colors cursor-pointer rounded-full hover:bg-red-50"
               >
-                <X className="h-5 w-5" />
+                <span className="material-symbols-outlined text-[20px]">close</span>
               </button>
             )}
           </div>
 
-          <div className="mt-4 flex items-start bg-slate-50 p-3 rounded-lg border border-slate-200 shadow-sm">
-            <div className="flex items-center h-5 mt-1">
+          <div className="mt-5 flex items-start bg-surface-lowest p-4 rounded-lg border border-surface-dim shadow-sm">
+            <div className="flex items-center h-5 mt-0.5">
               <input
                 id="upload-dpa-consent"
                 type="checkbox"
                 checked={dpaConsent}
                 onChange={(e) => setDpaConsent(e.target.checked)}
-                className="w-5 h-5 border border-slate-300 rounded bg-white focus:ring-3 focus:ring-primary-300 text-primary-600 appearance-none checked:bg-primary-600 checked:border-transparent transition-colors cursor-pointer relative"
+                className="w-5 h-5 border border-surface-dim rounded bg-white focus:ring-2 focus:ring-primary text-primary appearance-none checked:bg-primary checked:border-transparent transition-colors cursor-pointer relative"
               />
             </div>
-            <label htmlFor="upload-dpa-consent" className="ml-3 text-sm text-slate-700 font-medium leading-relaxed cursor-pointer">
+            <label htmlFor="upload-dpa-consent" className="ml-3 text-sm text-secondary font-medium leading-relaxed cursor-pointer">
               I explicitly consent to this specific image and associated demographic data being processed by AI and reviewed by Jamaican medical professionals in accordance with the Data Protection Act.
             </label>
           </div>
@@ -193,13 +183,14 @@ export function ImageUploader({ onUpload, isUploading }: ImageUploaderProps) {
               variant="outline"
               onClick={() => setSelectedFile(null)}
               disabled={isUploading}
+              className="rounded-full border-surface-dim text-secondary hover:text-primary px-5"
             >
               Cancel
             </Button>
             <Button
               onClick={submitUpload}
               isLoading={isUploading}
-              className="px-6"
+              className="px-6 rounded-full bg-primary text-on-primary hover:bg-primary/90 shadow-sm"
             >
               Analyze Securely
             </Button>
@@ -208,14 +199,14 @@ export function ImageUploader({ onUpload, isUploading }: ImageUploaderProps) {
       )}
 
       {error && (
-        <div className="mt-4 flex items-center text-sm text-status-danger bg-red-50 p-3 rounded-lg border border-red-100">
-          <AlertCircle className="h-4 w-4 mr-2" />
+        <div className="mt-4 flex items-center text-sm text-red-700 bg-red-50 p-3 rounded-lg border border-red-200">
+          <span className="material-symbols-outlined mr-2 text-[18px]">error</span>
           {error}
         </div>
       )}
 
-      <div className="mt-6 flex items-start text-xs text-slate-500">
-        <ShieldCheck className="h-4 w-4 mr-1.5 flex-shrink-0 text-status-safe" />
+      <div className="mt-6 flex items-start text-xs text-secondary">
+        <span className="material-symbols-outlined h-4 w-4 mr-2 flex-shrink-0 text-primary text-[18px]">gpp_good</span>
         <p>
           Your uploaded image is encrypted and processed via temporary signed
           URLs. It will be automatically deleted after your specified retention

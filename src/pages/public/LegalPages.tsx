@@ -1,6 +1,6 @@
-import { PublicNavbar } from "../../components/shared/PublicNavbar";
-import { Shield, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
+import { PublicNavbar } from "../../components/shared/PublicNavbar";
+import { Footer } from "../../components/shared/Footer";
 
 export function LegalPage({
   title,
@@ -10,26 +10,24 @@ export function LegalPage({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col pt-20">
+    <div className="min-h-screen bg-background font-body-md flex flex-col pt-20">
       <PublicNavbar />
       <div className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 py-12 w-full">
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-12">
-          <div className="flex items-center space-x-3 mb-8 pb-8 border-b border-slate-100">
-            <div className="bg-primary-50 p-3 rounded-xl border border-primary-100">
-              <Shield className="w-8 h-8 text-primary-600" />
+        <div className="bg-white rounded-2xl shadow-sm border border-surface-dim p-8 md:p-12">
+          <div className="flex items-center space-x-4 mb-8 pb-8 border-b border-surface-dim">
+            <div className="bg-primary/5 p-3 rounded-xl border border-primary/10 text-primary">
+              <span className="material-symbols-outlined text-[32px]">gavel</span>
             </div>
-            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+            <h1 className="text-3xl lg:text-4xl font-extrabold text-primary font-serif italic tracking-tight">
               {title}
             </h1>
           </div>
-          <div className="prose prose-slate max-w-none">{children}</div>
+          <div className="prose prose-slate max-w-none text-secondary prose-headings:text-primary prose-headings:font-serif prose-headings:italic prose-a:text-primary prose-strong:text-primary">
+            {children}
+          </div>
         </div>
       </div>
-      <footer className="py-6 text-center text-xs text-slate-400 border-t border-slate-200">
-        <Link to="/" className="hover:text-primary-500 transition-colors">
-          ← Back to Dermify
-        </Link>
-      </footer>
+      <Footer />
     </div>
   );
 }
@@ -37,11 +35,11 @@ export function LegalPage({
 export function PrivacyPolicy() {
   return (
     <LegalPage title="Privacy Policy">
-      <p className="text-sm text-slate-500">Last updated: March 2026</p>
+      <p className="text-sm font-medium">Last updated: March 2026</p>
 
       <h3>Our Commitment to Your Privacy</h3>
       <p>
-        At Dermify, we understand that the information you share with us —
+        At Skintuition, we understand that the information you share with us —
         particularly images of your skin and related health concerns — is among
         the most sensitive data you could provide. We treat it accordingly. This
         policy explains clearly what we collect, how it is used, and how it is
@@ -66,10 +64,7 @@ export function PrivacyPolicy() {
           <strong>Health notes</strong>: Any optional symptom notes or context
           you provide alongside an upload.
         </li>
-        <li>
-          <strong>Consultation records</strong>: Messages, notes, and scheduling
-          data associated with doctor consultations.
-        </li>
+
       </ul>
       <p>
         We do not collect payment card data directly. If payment is required, it
@@ -79,21 +74,14 @@ export function PrivacyPolicy() {
 
       <h3>2. How We Use Your Data</h3>
       <p>
-        Your data is used exclusively to provide the AI screening and doctor
-        consultation service. Specifically:
+        Your data is used exclusively to provide the AI screening service. Specifically:
       </p>
       <ul>
         <li>
           To generate a preliminary triage assessment of your submitted image.
         </li>
-        <li>
-          To route your case to a licensed dermatologist if follow-up is
-          recommended.
-        </li>
-        <li>
-          To facilitate secure communication between you and your assigned
-          doctor.
-        </li>
+
+
         <li>
           To improve the safety and accuracy of our AI systems under strict
           medical supervision.
@@ -109,17 +97,12 @@ export function PrivacyPolicy() {
       <p>
         Uploaded images are automatically deleted from our primary servers after
         AI analysis is complete, unless you have explicitly opted in to retain
-        them within your secure encrypted patient record. Consultation records
-        are retained for the period required by applicable healthcare
-        regulations (typically 7 years in the United States) and then
-        permanently deleted.
+        them within your secure encrypted patient record.
       </p>
 
       <h3>4. Security Standards</h3>
       <p>
-        All data is encrypted at rest and in transit to HIPAA-compliant
-        standards. Access to patient data is enforced at the database level —
-        doctors can only access cases assigned to them, and no staff member can
+        Access to patient data is enforced at the database level — no staff member can
         access individual patient records without a documented clinical reason.
       </p>
 
@@ -128,7 +111,7 @@ export function PrivacyPolicy() {
         You have the right to request a copy of your data, correct inaccuracies,
         or request deletion of your account and associated records at any time.
         To exercise these rights, contact us at{" "}
-        <strong>privacy@dermify.example.com</strong>. We respond to all
+        <strong>privacy@skintuition.com</strong>. We respond to all
         privacy requests within 14 business days.
       </p>
 
@@ -145,19 +128,19 @@ export function PrivacyPolicy() {
 export function MedicalDisclaimer() {
   return (
     <LegalPage title="Medical Disclaimer">
-      <p className="text-sm text-slate-500">Last updated: March 2026</p>
+      <p className="text-sm font-medium">Last updated: March 2026</p>
 
-      <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 my-6 flex items-start gap-3 not-prose">
-        <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-        <p className="text-amber-800 text-sm font-semibold">
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 my-6 flex items-start gap-3 not-prose shadow-sm">
+        <span className="material-symbols-outlined text-[20px] text-amber-700 shrink-0 mt-0.5">warning</span>
+        <p className="text-amber-900 text-sm font-medium">
           If you are experiencing a medical emergency, stop reading this page
-          and call 911 or go to your nearest emergency department immediately.
+          and call <strong>911</strong> or go to your nearest emergency department immediately.
         </p>
       </div>
 
       <h3>This Platform Is a Triage Tool — Not a Diagnosis</h3>
       <p>
-        Dermify provides AI-assisted visual screening of skin images to help
+        Skintuition provides AI-assisted visual screening of skin images to help
         users understand the approximate priority level of their concern. This
         is fundamentally different from a clinical medical diagnosis. The output
         of our AI is a <strong>preliminary triage assessment</strong> — a tool
@@ -165,7 +148,7 @@ export function MedicalDisclaimer() {
         care.
       </p>
       <p>
-        The AI screening report produced by Dermify is <strong>NOT</strong> a
+        The AI screening report produced by Skintuition is <strong>NOT</strong> a
         substitute for, and should never be treated as equivalent to, a
         diagnosis, prognosis, or treatment recommendation from a qualified,
         licensed healthcare provider.
@@ -203,11 +186,7 @@ export function MedicalDisclaimer() {
 
       <h3>No Prescriptions or Treatment Recommendations</h3>
       <p>
-        Dermify does not prescribe medications, recommend treatments, or
-        provide any form of clinical intervention. Doctor consultations
-        facilitated through this platform are for discussion and triage support
-        only. Any treatment decisions are made solely by the licensed doctor in
-        accordance with their professional duties.
+        provide any form of clinical intervention.
       </p>
 
       <h3>Emergency Situations</h3>
@@ -224,19 +203,18 @@ export function MedicalDisclaimer() {
 export function TermsOfUse() {
   return (
     <LegalPage title="Terms of Use">
-      <p className="text-sm text-slate-500">Last updated: March 2026</p>
+      <p className="text-sm font-medium">Last updated: March 2026</p>
 
       <h3>1. Acceptance of These Terms</h3>
       <p>
-        By creating an account or using any part of the Dermify platform, you
+        By creating an account or using any part of the Skintuition platform, you
         confirm that you have read, understood, and agree to these Terms of Use.
         If you do not agree, you must not use the platform.
       </p>
 
       <h3>2. Nature of the Service</h3>
       <p>
-        Dermify provides AI-assisted skin image screening and a platform to
-        facilitate consultations with licensed dermatologists. It is not a
+        Skintuition provides AI-assisted skin image screening. It is not a
         medical practice, it does not employ physicians directly, and it does
         not provide clinical diagnoses or treatment. All screening results are
         preliminary and informational only.
@@ -265,10 +243,7 @@ export function TermsOfUse() {
           systems, or use it for any commercial purpose without prior written
           agreement.
         </li>
-        <li>
-          You must not submit false, misleading, or abusive content through the
-          messaging or consultation features.
-        </li>
+
       </ul>
 
       <h3>5. Medical Responsibility</h3>
@@ -290,13 +265,13 @@ export function TermsOfUse() {
       <h3>7. Intellectual Property</h3>
       <p>
         All content, branding, AI models, and underlying software on this
-        platform are the intellectual property of Dermify Ltd. and may not be
+        platform are the intellectual property of Skintuition Ltd. and may not be
         reproduced, copied, or distributed without express written permission.
       </p>
 
       <h3>8. Limitation of Liability</h3>
       <p>
-        To the fullest extent permitted by law, Dermify Ltd. shall not be
+        To the fullest extent permitted by law, Skintuition Ltd. shall not be
         liable for any direct, indirect, or consequential harm arising from
         reliance on the AI screening output, technical errors, or any failure of
         the platform outside of our direct control.

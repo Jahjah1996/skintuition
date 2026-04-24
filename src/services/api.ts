@@ -1,5 +1,5 @@
 /**
- * api client
+ * api client — Skintuition
  */
 import type { SymptomData } from "../components/medical/SymptomQuestionnaire";
 import { supabase } from "../config/supabase";
@@ -60,6 +60,10 @@ export interface AnalysisResponse {
     }>;
     topFeatures: string[];
     explanation: string;
+    regimen?: {
+      morning: Array<{ step: string; product: string; purpose: string }>;
+      evening: Array<{ step: string; product: string; purpose: string }>;
+    };
   };
   xai_metadata?: {
     bounding_box?: {
@@ -78,6 +82,10 @@ export interface AnalysisResponse {
     }>;
     topFeatures: string[];
     explanation: string;
+    regimen?: {
+      morning: Array<{ step: string; product: string; purpose: string }>;
+      evening: Array<{ step: string; product: string; purpose: string }>;
+    };
   };
   pipelineStages?: Record<string, string>;
   pipeline_stages?: Record<string, string>;
@@ -96,20 +104,9 @@ export interface AnalysisTriggerResponse {
   disclaimer?: string;
 }
 
-export interface ConsultationPayload {
-  analysisId: string;
-  preferredDate?: string;
-  notes?: string;
-  urgency?: "ROUTINE" | "SOON" | "HIGH" | "CRITICAL";
-}
-
 // base fetch
 
 async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -145,13 +142,6 @@ export const api = {
     get: () => apiFetch<{ status: string; version: string }>("/health"),
   },
 
-  public: {
-    getDoctors: () =>
-      apiFetch<{ success: boolean; data: Record<string, unknown>[] }>(
-        "/public/doctors",
-      ).then((res) => res.data),
-  },
-
   uploads: {
     create: (payload: CreateUploadPayload) =>
       apiFetch<UploadResponse>("/uploads", {
@@ -181,51 +171,15 @@ export const api = {
   },
 
   analysis: {
-    trigger: (uploadId: string, symptomContext?: SymptomData) =>
-      apiFetch<AnalysisTriggerResponse>(`/analysis/${uploadId}`, {
+    trigger: (uploadId: string, _symptomContext?: SymptomData) =>
+      apiFetch<AnalysisResponse>(`/analysis/trigger?uploadId=${uploadId}`, {
         method: "POST",
-        body: symptomContext ? JSON.stringify({ symptomContext }) : undefined,
       }),
 
     getById: (analysisId: string) =>
-      apiFetch<AnalysisResponse>(`/analysis/${analysisId}`),
+      apiFetch<AnalysisResponse>(`/analysis/get?analysisId=${analysisId}`),
 
     getByUploadId: (uploadId: string) =>
-      apiFetch<AnalysisResponse>(`/analysis/upload/${uploadId}`),
-  },
-
-  consultations: {
-    create: (payload: ConsultationPayload) =>
-      apiFetch<unknown>("/consultations", {
-        method: "POST",
-        body: JSON.stringify(payload),
-      }),
-
-    list: (params?: { status?: string; page?: number; limit?: number }) => {
-      const qs = new URLSearchParams(
-        Object.entries(params ?? {})
-          .filter(([, v]) => v !== undefined)
-          .map(([k, v]) => [k, String(v)]),
-      ).toString();
-      return apiFetch<{ data: unknown[]; pagination: unknown }>(
-        `/consultations${qs ? `?${qs}` : ""}`,
-      );
-    },
-
-    getById: (id: string) => apiFetch<unknown>(`/consultations/${id}`),
-
-    update: (
-      id: string,
-      payload: {
-        status?: string;
-        doctorNotes?: string;
-        scheduledAt?: string;
-        assignedDoctorId?: string;
-      },
-    ) =>
-      apiFetch<unknown>(`/consultations/${id}`, {
-        method: "PATCH",
-        body: JSON.stringify(payload),
-      }),
+      apiFetch<AnalysisResponse>(`/analysis/get?byUploadId=${uploadId}`),
   },
 };

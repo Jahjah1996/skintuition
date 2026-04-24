@@ -22,7 +22,7 @@ export function HeroDemo() {
           Instantly
         </>
       }
-      subtitle="Upload a photo, receive an AI-powered risk screening, and connect with certified dermatologists if needed."
+      subtitle="Upload a photo, receive an AI-powered risk screening, and track your skin health journey over time."
       actionButtons={
         <>
           <Link to="/register" state={modalLinkState} className="w-full sm:w-auto">

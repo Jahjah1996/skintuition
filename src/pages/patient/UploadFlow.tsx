@@ -1,8 +1,8 @@
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { Button } from "../../components/core/Button";
 import { ImageUploader } from "../../components/medical/ImageUploader";
+import { RegimenWidget } from "../../components/medical/RegimenWidget";
 import { RiskAssessmentWidget } from "../../components/medical/RiskAssessmentWidget";
 import { SymptomQuestionnaire } from "../../components/medical/SymptomQuestionnaire";
 import { ScanningAnimation } from "../../components/shared/ScanningAnimation";
@@ -138,15 +138,13 @@ export function UploadFlow() {
 
       if (updateErr) throw new Error(updateErr.message);
 
-      // start ai poll
+      // start ai analysis (synchronous — returns complete result)
       setStatusText("Submitting image for AI analysis...");
-      const queued = await api.analysis.trigger(
+      setScanProgress(50);
+      const result = await api.analysis.trigger(
         uploadId,
         symptomData ?? undefined,
       );
-      const result = await pollAnalysisResult(queued.analysisId, (latest) => {
-        setStatusText(toStatusText(latest));
-      });
 
       setAnalysisResult(result);
       setStatusText("Assessment complete.");
@@ -169,8 +167,8 @@ export function UploadFlow() {
   return (
     <div className="max-w-3xl mx-auto space-y-6 w-full fade-in">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">New Assessment</h1>
-        <p className="text-slate-500 mt-1">
+        <h1 className="text-3xl font-serif italic font-bold text-primary tracking-tight">New Assessment</h1>
+        <p className="text-secondary font-body-md mt-2">
           {step === "QUESTIONNAIRE" &&
             "Tell us about your symptoms so the AI can give you a more accurate result."}
           {step === "UPLOAD" &&
@@ -236,6 +234,10 @@ export function UploadFlow() {
               </div>
             )}
 
+            {analysisResult?.xai_metadata?.regimen && (
+              <RegimenWidget regimen={analysisResult.xai_metadata.regimen} />
+            )}
+
             <div
               className={`flex items-center gap-3 rounded-xl p-4 border ${
                 isEmergency(analysisResult)
@@ -269,7 +271,7 @@ export function UploadFlow() {
                 >
                   {isEmergency(analysisResult)
                     ? "Please seek immediate medical attention and contact emergency services if symptoms are severe."
-                    : "You can now book a consultation with a dermatologist for clinical confirmation."}
+                    : "Your scan is complete. You can view it in your scan history at any time."}
                 </p>
               </div>
             </div>
@@ -282,9 +284,6 @@ export function UploadFlow() {
               <AlertCircle className="h-5 w-5 text-red-600 shrink-0" />
               <p className="text-sm text-red-800">{errorMsg}</p>
             </div>
-            <Link to="/patient/consultation" className="block">
-              <Button className="w-full">Request a Consultation Anyway</Button>
-            </Link>
             <Button
               variant="outline"
               onClick={() => {
@@ -304,75 +303,6 @@ export function UploadFlow() {
       </div>
     </div>
   );
-}
-
-const STAGE_SEQUENCE = [
-  "validation",
-  "preprocessing",
-  "lesionDetection",
-  "riskScoring",
-  "explainability",
-  "safetyGate",
-] as const;
-
-const STAGE_MESSAGES: Record<string, string> = {
-  validation: "Validating image quality and metadata...",
-  preprocessing: "Preprocessing image for model inference...",
-  lesionDetection: "Detecting lesion structures...",
-  riskScoring: "Scoring dermatology risk classes...",
-  explainability: "Generating explainability overlays...",
-  safetyGate: "Applying medical safety checks...",
-};
-
-async function pollAnalysisResult(
-  analysisId: string,
-  onUpdate: (result: AnalysisResponse) => void,
-): Promise<AnalysisResponse> {
-  const maxAttempts = 90; // poll timeout
-  const pollMs = 2000;
-
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const result = await api.analysis.getById(analysisId);
-    onUpdate(result);
-
-    if (result.status === "complete") return result;
-    if (result.status === "failed") {
-      const msg =
-        result.errorMessage ??
-        result.error_message ??
-        "Analysis failed. Please try again.";
-      throw new Error(msg);
-    }
-
-    await delay(pollMs);
-  }
-
-  throw new Error("Analysis timed out. Please try again.");
-}
-
-function toStatusText(result: AnalysisResponse): string {
-  if (result.status === "queued") {
-    return "Queued for AI analysis...";
-  }
-
-  if (result.status === "processing") {
-    const stages = result.pipelineStages ?? result.pipeline_stages ?? {};
-    const latestCompleted = [...STAGE_SEQUENCE]
-      .reverse()
-      .find((stage) => stages[stage] === "pass");
-
-    if (latestCompleted) {
-      return STAGE_MESSAGES[latestCompleted];
-    }
-
-    return "Analyzing dermatological image...";
-  }
-
-  if (result.status === "complete") {
-    return "Assessment complete.";
-  }
-
-  return "Analysis failed.";
 }
 
 function toRiskLevel(result: AnalysisResponse): RiskLevel | null {
@@ -415,6 +345,3 @@ function isEmergency(result: AnalysisResponse | null): boolean {
   return Boolean(result.emergencyFlag ?? result.emergency_flag);
 }
 
-function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
