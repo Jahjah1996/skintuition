@@ -165,15 +165,20 @@ export function PatientRegister() {
             )}
 
             <div className="flex items-start bg-slate-50 p-3 rounded-xl border border-slate-200 shadow-sm mt-4 mb-4">
-              <div className="flex items-center h-5 mt-1">
+              <div className="flex items-center justify-center w-5 h-5 mt-1 relative">
                 <input
                   id="dpa-consent"
                   type="checkbox"
                   checked={dpaConsent}
                   onChange={(e) => setDpaConsent(e.target.checked)}
-                  className="w-5 h-5 border border-slate-300 rounded bg-white focus:ring-3 focus:ring-primary-300 text-primary-600 appearance-none checked:bg-primary-600 checked:border-transparent transition-colors cursor-pointer relative"
+                  className="w-5 h-5 border border-slate-300 rounded bg-white focus:ring-3 focus:ring-primary-300 text-primary-600 appearance-none checked:bg-primary-600 checked:border-transparent transition-colors cursor-pointer absolute inset-0 m-0"
                   required
                 />
+                {dpaConsent && (
+                  <svg className="w-3.5 h-3.5 text-white pointer-events-none z-10 relative" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
               </div>
               <label htmlFor="dpa-consent" className="ml-3 text-xs text-slate-600 font-medium leading-relaxed cursor-pointer">
                 I explicitly consent to the collection and processing of my sensitive personal health data as required by the <strong className="text-slate-800">Jamaica Data Protection Act (DPA)</strong>. I understand this data is used solely for triage screening and dermatological consultation.
