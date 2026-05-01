@@ -1,4 +1,4 @@
-import { Check, RefreshCw, X } from "lucide-react";
+import { Check, RefreshCw, SwitchCamera, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "../core/Button";
 
@@ -15,15 +15,16 @@ export function CameraCapture({ onCapture, onClose }: CameraCaptureProps) {
   const [error, setError] = useState<string>("");
   const [capturedBlob, setCapturedBlob] = useState<Blob | null>(null);
   const [capturedPreview, setCapturedPreview] = useState<string | null>(null);
+  const [facingMode, setFacingMode] = useState<"environment" | "user">("environment");
 
-  const startCamera = useCallback(async () => {
+  const startCamera = useCallback(async (facing: "environment" | "user" = facingMode) => {
     setError("");
     try {
       if (stream) {
         stream.getTracks().forEach((track) => track.stop());
       }
       const newStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
+        video: { facingMode: facing },
         audio: false,
       });
       setStream(newStream);
@@ -35,7 +36,13 @@ export function CameraCapture({ onCapture, onClose }: CameraCaptureProps) {
       console.error("[CameraCapture] startCamera failed:", msg);
       setError("Cannot access camera. Please allow permissions.");
     }
-  }, [stream]);
+  }, [stream, facingMode]);
+
+  const flipCamera = useCallback(() => {
+    const next = facingMode === "environment" ? "user" : "environment";
+    setFacingMode(next);
+    startCamera(next);
+  }, [facingMode, startCamera]);
 
   useEffect(() => {
     startCamera();
@@ -108,7 +115,19 @@ export function CameraCapture({ onCapture, onClose }: CameraCaptureProps) {
             </div>
           )}
 
-          <div className="absolute top-4 right-4">
+          <div className="absolute top-4 right-4 flex gap-2">
+            {/* Flip camera — only visible on touch-capable devices */}
+            <button
+              onClick={flipCamera}
+              title="Flip camera"
+              className="p-2 bg-slate-900/50 hover:bg-slate-900/80 rounded-full text-white transition-colors touch-device-only"
+              style={{ display: "none" }}
+              ref={(el) => {
+                if (el && "ontouchstart" in window) el.style.display = "";
+              }}
+            >
+              <SwitchCamera className="w-5 h-5" />
+            </button>
             <button
               onClick={onClose}
               className="p-2 bg-slate-900/50 hover:bg-slate-900/80 rounded-full text-white transition-colors"
