@@ -306,7 +306,7 @@ export function UploadFlow() {
 }
 
 function toRiskLevel(result: AnalysisResponse): RiskLevel | null {
-  const raw = result.riskLevel ?? result.risk_level;
+  const raw = (result.riskLevel ?? result.risk_level)?.toString().toUpperCase();
   if (
     raw === "LOW" ||
     raw === "MODERATE" ||

@@ -2,14 +2,14 @@
  * Netlify Function response helpers
  */
 
-export function jsonResponse(body: unknown, statusCode = 200) {
+export function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
-    statusCode,
+    status,
     headers: {
       "Content-Type": "application/json",
       "Cache-Control": "no-store",
     },
-  } as ResponseInit);
+  });
 }
 
 export function errorResponse(

@@ -39,6 +39,15 @@ export default async function handler(request: Request, _context: Context) {
 // ─── POST: Trigger Analysis ──────────────────────────────────────────
 
 async function handleTrigger(request: Request) {
+  // Guard: ensure Gemini API key is configured
+  if (!process.env.GEMINI_API_KEY) {
+    return errorResponse(
+      503,
+      "AI_UNAVAILABLE",
+      "AI analysis is not configured. Please contact support.",
+    );
+  }
+
   // Authenticate
   const auth = await verifyAuth(request, "patient");
   if (isAuthError(auth)) return auth;

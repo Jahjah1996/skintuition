@@ -55,10 +55,9 @@ export function applySafetyGate(
   const emergencyFlag = riskLevel === "CRITICAL";
   const fullSummary = `${cleanSummary} — ${MANDATORY_DISCLAIMER}`;
 
-  // Validate confidence bounds
-  if (confidence < 0 || confidence > 1) {
-    throw new Error(`Invalid confidence score: ${confidence}`);
-  }
+  // Clamp confidence to [0, 1] — Gemini sometimes returns values like 85 instead of 0.85
+  if (confidence > 1) confidence = confidence / 100;
+  confidence = Math.max(0, Math.min(1, confidence));
 
   return {
     summary: fullSummary,
